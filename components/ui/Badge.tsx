@@ -5,15 +5,16 @@ import { cn } from '@/lib/utils';
 
 interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   children: ReactNode;
-  variant?: 'default' | 'accent' | 'success' | 'warning' | 'error';
+  variant?: 'default' | 'accent' | 'primary' | 'success' | 'warning' | 'error';
   size?: 'sm' | 'md' | 'lg';
 }
 
 const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
   ({ className, children, variant = 'default', size = 'md', ...props }, ref) => {
     const variants = {
-      default: 'bg-white/20 text-white',
+      default: 'bg-orange-500 text-white',
       accent: 'bg-accent text-white',
+      primary: 'bg-[#1a237e] text-white',
       success: 'bg-green-500/20 text-green-400',
       warning: 'bg-yellow-500/20 text-yellow-400',
       error: 'bg-red-500/20 text-red-400',

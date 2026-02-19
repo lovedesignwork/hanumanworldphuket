@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useState, useMemo, useEffect, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Check, Calendar, Clock, Users, Minus, Plus, Car, Navigation, 
   MapPin, ShieldCheck, CalendarDays, ArrowRight, Hotel
 } from 'lucide-react';
-import { Container, Section, Badge } from '@/components/ui';
+import { Container, Section, Badge, CalendarPicker } from '@/components/ui';
 import { packages } from '@/lib/data/packages';
 import { formatPrice } from '@/lib/utils';
 
@@ -63,8 +63,9 @@ const PRIVATE_TRANSFER_PRICE = 2500;
 const NON_PLAYER_PRICE = 300;
 const MAX_PRIVATE_PASSENGERS = 10;
 
-export default function BookingPage() {
+function BookingContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   
   // Selected package
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
@@ -188,6 +189,37 @@ export default function BookingPage() {
   const isFormValid = selectedPackageId && selectedDate && selectedTime && 
     (selectedPackage?.includesTransfer ? (needPickup ? hotelName.trim() : true) : true);
 
+  // Handle proceed to checkout
+  const handleProceedToCheckout = () => {
+    if (!isFormValid) return;
+    
+    // Build promo addons string (format: "id:qty,id:qty")
+    const promoAddonsStr = Object.entries(promoAddonQuantities)
+      .filter(([, qty]) => qty > 0)
+      .map(([id, qty]) => `${id}:${qty}`)
+      .join(',');
+    
+    // Build URL params
+    const params = new URLSearchParams({
+      package: selectedPackageId!,
+      date: selectedDate,
+      time: selectedTime,
+      guests: guestCount.toString(),
+      pickup: needPickup.toString(),
+      hotel: hotelName,
+      room: roomNumber,
+      privateTransfer: privateTransfer.toString(),
+      privatePassengers: privateTransferPassengers.toString(),
+      nonPlayers: nonPlayerCount.toString(),
+    });
+    
+    if (promoAddonsStr) {
+      params.set('promoAddons', promoAddonsStr);
+    }
+    
+    router.push(`/checkout?${params.toString()}`);
+  };
+
   return (
     <main className="min-h-screen pt-20 bg-[#0d1259]">
       <Section 
@@ -210,9 +242,8 @@ export default function BookingPage() {
             {/* Left Column - Package Selection Dropdown */}
             <div className="space-y-6">
               <div>
-                <h2 className="text-xl font-[family-name:var(--font-oswald)] font-medium text-white mb-4 flex items-center gap-3">
-                  <span className="w-7 h-7 rounded-lg bg-accent flex items-center justify-center text-sm font-bold">1</span>
-                  Choose Your Package
+                <h2 className="text-xl font-[family-name:var(--font-oswald)] font-medium text-white mb-4">
+                  CHOOSE YOUR PACKAGE
                 </h2>
                 
                 {/* Dropdown */}
@@ -361,7 +392,7 @@ export default function BookingPage() {
                     >
                       {/* Promotional Add-ons */}
                       <div className="mt-6">
-                        <h3 className="text-lg font-[family-name:var(--font-oswald)] font-medium text-white mb-3 flex items-center gap-2">
+                        <h3 className="font-[family-name:var(--font-oswald)] text-white mb-3 flex items-center gap-2" style={{ fontSize: '23px', fontWeight: 400 }}>
                           ADD ON & PROMOTION
                         </h3>
                         <div className="space-y-3">
@@ -450,12 +481,6 @@ export default function BookingPage() {
                                       </div>
                                     </div>
                                     
-                                    {/* Warning if add-on quantity exceeds guest count - hidden on mobile */}
-                                    {qty > guestCount && (
-                                      <div className="hidden lg:block mt-2 px-2 py-1 bg-yellow-500/20 border border-yellow-500/50 rounded text-xs text-yellow-300">
-                                        ⚠️ Add-on quantity ({qty}) exceeds number of guests ({guestCount})
-                                      </div>
-                                    )}
                                   </div>
                                 </div>
                               </div>
@@ -497,7 +522,7 @@ export default function BookingPage() {
                       />
                       
                       <p className="text-white/70 text-xs uppercase tracking-wider mb-1 relative z-10">BOOK YOUR EXPERIENCE</p>
-                      <h2 className="text-2xl font-bold text-white font-[family-name:var(--font-oswald)] relative z-10">
+                      <h2 className="text-white font-[family-name:var(--font-oswald)] relative z-10" style={{ fontSize: '25px', fontWeight: 400 }}>
                         {selectedPackage.name}
                       </h2>
                     </div>
@@ -515,16 +540,11 @@ export default function BookingPage() {
                         <div className="grid grid-cols-2 gap-4">
                           <div>
                             <label className="block text-[10px] uppercase tracking-wider text-slate-400 mb-1.5">Activity Date</label>
-                            <div className="relative">
-                              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                              <input
-                                type="date"
-                                value={selectedDate}
-                                onChange={(e) => setSelectedDate(e.target.value)}
-                                min={new Date().toISOString().split('T')[0]}
-                                className="w-full h-11 pl-10 pr-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:outline-none focus:border-[#1a237e]"
-                              />
-                            </div>
+                            <CalendarPicker
+                              value={selectedDate}
+                              onChange={setSelectedDate}
+                              minDate={new Date().toISOString().split('T')[0]}
+                            />
                           </div>
                           
                           <div>
@@ -556,7 +576,7 @@ export default function BookingPage() {
                         <div className="flex items-center gap-2 mb-4">
                           <span className="w-6 h-6 rounded-lg bg-[#1a237e] flex items-center justify-center text-xs font-bold text-white">2</span>
                           <Users className="w-4 h-4 text-[#1a237e]" />
-                          <span className="font-bold text-slate-800 text-sm">Number of Guests</span>
+                          <span className="font-bold text-slate-800 text-sm">Number of Players</span>
                         </div>
                         
                         <div className="flex items-center justify-between">
@@ -812,7 +832,7 @@ export default function BookingPage() {
                             <div className="p-4 rounded-xl border-2 border-amber-500/30 bg-amber-500/10">
                               <div className="flex items-center gap-2 mb-2">
                                 <Navigation className="w-4 h-4 text-amber-600" />
-                                <span className="text-sm font-medium text-slate-800">Self Arrange Transport</span>
+                                <span className="text-sm font-medium text-slate-800">Self Transfer</span>
                               </div>
                               <p className="text-xs text-slate-500">This package does not include transfer. Please arrange your own transportation to Hanuman World.</p>
                             </div>
@@ -897,6 +917,8 @@ export default function BookingPage() {
 
                       {/* Submit Button */}
                       <button
+                        type="button"
+                        onClick={handleProceedToCheckout}
                         disabled={!isFormValid}
                         className="w-full h-13 rounded-xl font-bold text-white flex items-center justify-center gap-2 transition-all hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed group"
                         style={{
@@ -944,5 +966,23 @@ export default function BookingPage() {
         </Container>
       </Section>
     </main>
+  );
+}
+
+export default function BookingPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen pt-20 bg-[#0d1259]">
+        <Section className="relative overflow-hidden">
+          <Container className="relative z-10">
+            <div className="flex items-center justify-center py-20">
+              <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            </div>
+          </Container>
+        </Section>
+      </main>
+    }>
+      <BookingContent />
+    </Suspense>
   );
 }

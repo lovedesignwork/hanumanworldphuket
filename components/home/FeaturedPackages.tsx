@@ -27,7 +27,7 @@ const getContentGradient = (packageId?: string): string => {
   if (packageId === 'world-d-plus') return 'animated-card-bg-blue-green';
   if (packageId === 'world-b-plus') return 'animated-card-bg-mint';
   if (packageId === 'world-a-plus') return 'animated-card-bg-deep-blue';
-  if (packageId === 'luge') return 'animated-card-bg-green';
+  if (packageId === 'luge') return 'animated-card-bg-purple';
   if (['zipline-18', 'zipline-32', 'zipline-10', 'roller-zipline', 'skywalk', 'slingshot'].includes(packageId || '')) {
     return 'animated-card-bg-turquoise-mint';
   }
@@ -38,7 +38,7 @@ const getButtonGradient = (packageId?: string): string => {
   if (packageId === 'world-d-plus') return 'animated-btn-blue-green';
   if (packageId === 'world-b-plus') return 'animated-btn-mint';
   if (packageId === 'world-a-plus') return 'animated-btn-deep-blue';
-  if (packageId === 'luge') return 'animated-btn-green';
+  if (packageId === 'luge') return 'animated-btn-purple';
   if (['zipline-18', 'zipline-32', 'zipline-10', 'roller-zipline', 'skywalk', 'slingshot'].includes(packageId || '')) {
     return 'animated-btn-turquoise-mint';
   }
@@ -117,9 +117,6 @@ export function FeaturedPackages() {
                     />
                     <div className="absolute top-4 left-4">
                       <Badge>{worldAPlus.duration}</Badge>
-                    </div>
-                    <div className="absolute top-4 right-4">
-                      <Badge variant="accent">MOST POPULAR</Badge>
                     </div>
                   </div>
                   
@@ -382,11 +379,14 @@ export function FeaturedPackages() {
                       <Badge>{lugePackage.duration}</Badge>
                     </div>
                     <div className="absolute top-4 right-4">
-                      <Badge variant="accent" className="bg-green-500/90 text-white">NEW ATTRACTION</Badge>
+                      <Badge variant="accent" className="bg-purple-500/90 text-white">NEW ATTRACTION</Badge>
                     </div>
                   </div>
                   
-                  <div className={`relative p-8 lg:p-10 flex flex-col justify-center lg:w-[60%] min-h-[350px] animated-card-bg-green overflow-hidden`}>
+                  <div 
+                    className="relative p-8 lg:p-10 flex flex-col justify-center lg:w-[60%] min-h-[350px] overflow-hidden"
+                    style={{ background: 'linear-gradient(135deg, #1a0a2e 0%, #2a1a5c 35%, #0d1259 70%, #1a237e 100%)' }}
+                  >
                     <div 
                       className="absolute w-[512px] h-[512px] opacity-10 pointer-events-none animate-circle-orbit-1"
                       style={{
@@ -399,7 +399,7 @@ export function FeaturedPackages() {
                     />
                     
                     <div className="text-center mb-2 relative z-10">
-                      <span className="text-green-400 text-sm font-semibold uppercase tracking-wider">Part of Hanuman World</span>
+                      <span className="text-purple-400 text-sm font-semibold uppercase tracking-wider">Part of Hanuman World</span>
                     </div>
                     
                     <h3 className="text-[55px] font-[family-name:var(--font-oswald)] font-medium tracking-wide text-white mb-4 relative z-10 text-center">
@@ -427,7 +427,7 @@ export function FeaturedPackages() {
                     
                     <Link href={`/booking?package=${lugePackage.id}`} className="block relative z-10">
                       <div className="p-[2px] rounded-xl transition-all duration-300 hover:scale-105 animated-silver-border-btn">
-                        <button className={`relative z-10 w-full flex items-center justify-center gap-3 py-3.5 rounded-xl animated-btn-green text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden`}>
+                        <button className={`relative z-10 w-full flex items-center justify-center gap-3 py-3.5 rounded-xl animated-btn-purple text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden`}>
                           <CheckCircle className="w-[19px] h-[19px]" />
                           <span className="font-[family-name:var(--font-oswald)] font-normal tracking-wide text-[19px]">
                             BOOK NOW: {formatPrice(lugePackage.price)} / PERSON

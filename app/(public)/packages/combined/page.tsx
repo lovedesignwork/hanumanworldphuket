@@ -8,6 +8,7 @@ import { Container, Section, SectionHeader, Badge } from '@/components/ui';
 import { getPackagesByCategory } from '@/lib/data/packages';
 import { formatPrice } from '@/lib/utils';
 import { staggerContainer, staggerItem } from '@/lib/animations';
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 
 const statLabels: Record<string, string> = {
   platforms: 'PLATFORM',

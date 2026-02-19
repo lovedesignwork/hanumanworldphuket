@@ -19,7 +19,19 @@ export function InstagramFeed() {
 
   return (
     <Section className="relative overflow-hidden" style={{ backgroundColor: '#0d1259' }}>
-      <Container>
+      {/* Big Circle Background Decorations */}
+      <img 
+        src="/images/circlebig.png"
+        alt=""
+        className="absolute w-[600px] h-[600px] opacity-15 pointer-events-none object-contain top-[-15%] left-[-10%] animate-spin-slow"
+      />
+      <img 
+        src="/images/circlebig.png"
+        alt=""
+        className="absolute w-[600px] h-[600px] opacity-15 pointer-events-none object-contain bottom-[-15%] right-[-10%] animate-spin-slow-reverse"
+      />
+      
+      <Container className="relative z-10">
         <SectionHeader
           title="Follow Our Adventure"
           subtitle="Join our community and share your Hanuman World experience"

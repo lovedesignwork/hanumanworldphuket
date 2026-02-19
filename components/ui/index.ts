@@ -4,3 +4,4 @@ export * from './Section';
 export * from './Container';
 export * from './Badge';
 export * from './SectionHeader';
+export * from './CalendarPicker';

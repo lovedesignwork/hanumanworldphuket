@@ -50,7 +50,7 @@ const galleryImages = [
 
 export function PhotoGallery() {
   return (
-    <Section className="!py-0 !pt-[30px] overflow-hidden">
+    <Section className="!py-0 !pt-[30px] overflow-hidden" style={{ backgroundColor: '#0a0f3d' }}>
       <div className="space-y-4">
         {galleryImages.map((row, rowIndex) => (
           <div key={rowIndex} className="relative overflow-hidden">

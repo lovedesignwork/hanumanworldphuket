@@ -1,8 +1,21 @@
 'use client';
 
 import { useState } from 'react';
-import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react';
-import { Container, Section, SectionHeader, Card, Button } from '@/components/ui';
+import { motion } from 'framer-motion';
+import { Section, Container } from '@/components/craft';
+import { 
+  MapPin, 
+  Phone, 
+  Mail, 
+  Clock, 
+  Send, 
+  MessageCircle,
+  Facebook,
+  Instagram,
+  Loader2,
+  CheckCircle,
+  AlertCircle
+} from 'lucide-react';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -12,231 +25,300 @@ export default function ContactPage() {
     subject: '',
     message: '',
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    setSending(true);
+    setError(null);
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send message');
+      }
+
+      setSent(true);
+      setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+      setTimeout(() => setSent(false), 10000);
+    } catch (err) {
+      console.error('Contact form error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to send message. Please try again.');
+    } finally {
+      setSending(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   return (
-    <main className="min-h-screen pt-20 bg-[#1a237e]">
-      <Section 
-        className="relative overflow-hidden min-h-[calc(100vh-80px)]"
-        style={{ background: 'linear-gradient(135deg, #2a1a5c 0%, #0d1259 30%, #0d4a4a 60%, #1a237e 100%)' }}
-      >
-        {/* Big rotating circles */}
-        <img 
-          src="/images/circlebig.png"
-          alt=""
-          className="absolute w-[800px] h-[800px] opacity-10 pointer-events-none object-contain top-[-15%] right-[-10%] animate-spin-slow"
-        />
-        <img 
-          src="/images/circlebig.png"
-          alt=""
-          className="absolute w-[700px] h-[700px] opacity-10 pointer-events-none object-contain top-[30%] left-[-15%] animate-spin-slow-reverse"
-        />
-        <img 
-          src="/images/circlebig.png"
-          alt=""
-          className="absolute w-[600px] h-[600px] opacity-5 pointer-events-none object-contain bottom-[-15%] right-[20%] animate-spin-slow"
-        />
-        
-        <Container className="relative z-10">
-          <SectionHeader
-            title="Contact Us"
-            subtitle="Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible."
-          />
-          
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-              <Card padding="lg">
-                {isSubmitted ? (
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Send className="w-8 h-8 text-green-400" />
+    <main className="pt-20">
+      <Section className="bg-gradient-to-b from-[#0d1259] to-[#1a237e] py-16">
+        <Container>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-2xl mx-auto text-center"
+          >
+            <h1 className="text-4xl font-bold text-white mb-4">Contact Us</h1>
+            <p className="text-white/70">
+              Have a question or need assistance? We're here to help!
+            </p>
+          </motion.div>
+        </Container>
+      </Section>
+
+      <Section className="bg-white py-16">
+        <Container>
+          <div className="grid lg:grid-cols-3 gap-12">
+            <div className="lg:col-span-1 space-y-8">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+              >
+                <h2 className="text-2xl font-bold text-slate-800 mb-6">Get in Touch</h2>
+                
+                <div className="space-y-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-[#1a237e]/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-6 h-6 text-[#1a237e]" />
                     </div>
-                    <h3 className="text-2xl font-bold text-white mb-2">Message Sent!</h3>
-                    <p className="text-foreground-muted">We&apos;ll get back to you as soon as possible.</p>
-                    <Button 
-                      onClick={() => setIsSubmitted(false)} 
-                      className="mt-6"
-                      variant="secondary"
-                    >
-                      Send Another Message
-                    </Button>
-                  </div>
-                ) : (
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-white mb-2">Name *</label>
-                        <input
-                          type="text"
-                          name="name"
-                          value={formData.name}
-                          onChange={handleChange}
-                          required
-                          className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-foreground-muted focus:outline-none focus:border-accent"
-                          placeholder="Your name"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-white mb-2">Email *</label>
-                        <input
-                          type="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          required
-                          className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-foreground-muted focus:outline-none focus:border-accent"
-                          placeholder="your@email.com"
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-white mb-2">Phone</label>
-                        <input
-                          type="tel"
-                          name="phone"
-                          value={formData.phone}
-                          onChange={handleChange}
-                          className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-foreground-muted focus:outline-none focus:border-accent"
-                          placeholder="+66 XX XXX XXXX"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-white mb-2">Subject *</label>
-                        <select
-                          name="subject"
-                          value={formData.subject}
-                          onChange={handleChange}
-                          required
-                          className="w-full px-4 py-3 bg-[#1a237e] border border-white/10 rounded-xl text-white focus:outline-none focus:border-accent appearance-none cursor-pointer"
-                          style={{
-                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
-                            backgroundRepeat: 'no-repeat',
-                            backgroundPosition: 'right 12px center',
-                            backgroundSize: '20px',
-                            paddingRight: '48px',
-                          }}
-                        >
-                          <option value="" className="bg-[#1a237e] text-white">Select a subject</option>
-                          <option value="booking" className="bg-[#1a237e] text-white">Booking Inquiry</option>
-                          <option value="packages" className="bg-[#1a237e] text-white">Package Information</option>
-                          <option value="group" className="bg-[#1a237e] text-white">Group Booking</option>
-                          <option value="feedback" className="bg-[#1a237e] text-white">Feedback</option>
-                          <option value="other" className="bg-[#1a237e] text-white">Other</option>
-                        </select>
-                      </div>
-                    </div>
-                    
                     <div>
-                      <label className="block text-sm font-medium text-white mb-2">Message *</label>
-                      <textarea
-                        name="message"
-                        value={formData.message}
+                      <p className="font-semibold text-slate-800">Location</p>
+                      <p className="text-slate-500 text-sm">
+                        105 Moo 4, Chaofa Road<br />
+                        Wichit, Muang<br />
+                        Phuket 83130, Thailand
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-[#1a237e]/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Phone className="w-6 h-6 text-[#1a237e]" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-slate-800">Phone</p>
+                      <a href="tel:+6676391222" className="text-[#1a237e] hover:underline">
+                        +66 76 391 222
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-[#1a237e]/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Mail className="w-6 h-6 text-[#1a237e]" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-slate-800">Email</p>
+                      <a href="mailto:info@hanumanworldphuket.com" className="text-[#1a237e] hover:underline">
+                        info@hanumanworldphuket.com
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-[#1a237e]/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Clock className="w-6 h-6 text-[#1a237e]" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-slate-800">Operating Hours</p>
+                      <p className="text-slate-500 text-sm">
+                        Daily: 8:00 AM - 5:00 PM
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-6 border-t border-slate-200 mt-6">
+                  <p className="font-semibold text-slate-800 mb-4">Follow Us</p>
+                  <div className="flex gap-3">
+                    <a
+                      href="https://facebook.com/hanumanworld"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-lg flex items-center justify-center transition-colors"
+                    >
+                      <Facebook className="w-5 h-5 text-white" />
+                    </a>
+                    <a
+                      href="https://instagram.com/hanumanworld"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 rounded-lg flex items-center justify-center transition-colors"
+                    >
+                      <Instagram className="w-5 h-5 text-white" />
+                    </a>
+                    <a
+                      href="https://wa.me/6676391222"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 bg-green-500 hover:bg-green-600 rounded-lg flex items-center justify-center transition-colors"
+                    >
+                      <MessageCircle className="w-5 h-5 text-white" />
+                    </a>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              className="lg:col-span-2"
+            >
+              <div className="bg-slate-50 rounded-3xl p-8">
+                <h2 className="text-2xl font-bold text-slate-800 mb-6">Send us a Message</h2>
+
+                {sent && (
+                  <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    <div>
+                      <p className="text-green-700 font-medium">Thank you! Your message has been sent successfully.</p>
+                      <p className="text-green-600 text-sm">We've also sent you a confirmation email. We'll get back to you within 24-48 hours.</p>
+                    </div>
+                  </div>
+                )}
+
+                {error && (
+                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3">
+                    <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                    <p className="text-red-700">{error}</p>
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Your Name *
+                      </label>
+                      <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
                         onChange={handleChange}
                         required
-                        rows={5}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-foreground-muted focus:outline-none focus:border-accent resize-none"
-                        placeholder="How can we help you?"
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#1a237e] transition-colors text-slate-800 placeholder:text-slate-400"
+                        placeholder="John Doe"
                       />
                     </div>
-                    
-                    <button 
-                      type="submit" 
-                      disabled={isSubmitting}
-                      className="w-full py-4 rounded-xl font-[family-name:var(--font-oswald)] font-normal tracking-wide text-xl text-white uppercase transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
-                      style={{
-                        background: 'linear-gradient(135deg, #f97316, #ea580c, #f97316)',
-                        backgroundSize: '200% 200%',
-                        animation: 'gradient-shift 3s ease infinite',
-                        boxShadow: '0 0 20px rgba(249, 115, 22, 0.5), 0 4px 15px rgba(249, 115, 22, 0.3)',
-                      }}
-                    >
-                      {isSubmitting ? 'Sending...' : 'Send Message'}
-                    </button>
-                  </form>
-                )}
-              </Card>
-            </div>
-            
-            <div className="space-y-6">
-              <Card>
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-6 h-6 text-accent" />
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Email Address *
+                      </label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#1a237e] transition-colors text-slate-800 placeholder:text-slate-400"
+                        placeholder="john@example.com"
+                      />
+                    </div>
                   </div>
+
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Phone Number
+                      </label>
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#1a237e] transition-colors text-slate-800 placeholder:text-slate-400"
+                        placeholder="+66 XX XXX XXXX"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Subject *
+                      </label>
+                      <select
+                        name="subject"
+                        value={formData.subject}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#1a237e] transition-colors text-slate-800"
+                      >
+                        <option value="">Select a topic</option>
+                        <option value="booking">Booking Inquiry</option>
+                        <option value="modification">Booking Modification</option>
+                        <option value="cancellation">Cancellation Request</option>
+                        <option value="group">Group Booking</option>
+                        <option value="general">General Question</option>
+                        <option value="feedback">Feedback</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </div>
+                  </div>
+
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-1">Address</h3>
-                    <p className="text-foreground-muted">
-                      105 Moo 4, Chaofa West Road<br />
-                      Chalong, Muang, Phuket 83130
-                    </p>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Message *
+                    </label>
+                    <textarea
+                      name="message"
+                      value={formData.message}
+                      onChange={handleChange}
+                      required
+                      rows={5}
+                      className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#1a237e] transition-colors resize-none text-slate-800 placeholder:text-slate-400"
+                      placeholder="How can we help you?"
+                    />
                   </div>
-                </div>
-              </Card>
-              
-              <Card>
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Phone className="w-6 h-6 text-accent" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white mb-1">Phone</h3>
-                    <a href="tel:+66763016110" className="text-foreground-muted hover:text-accent transition-colors">
-                      +66 76 301 6110
-                    </a>
-                  </div>
-                </div>
-              </Card>
-              
-              <Card>
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Mail className="w-6 h-6 text-accent" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white mb-1">Email</h3>
-                    <a href="mailto:info@hanumanworld.com" className="text-foreground-muted hover:text-accent transition-colors">
-                      info@hanumanworld.com
-                    </a>
-                  </div>
-                </div>
-              </Card>
-              
-              <Card>
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Clock className="w-6 h-6 text-accent" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white mb-1">Operating Hours</h3>
-                    <p className="text-foreground-muted">
-                      Daily: 8:00 AM - 5:00 PM<br />
-                      Time Slots: 8AM, 10AM, 1PM, 3PM
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            </div>
+
+                  <button
+                    type="submit"
+                    disabled={sending}
+                    className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-[#1a237e] hover:bg-[#0d1259] text-white font-semibold rounded-xl transition-colors disabled:opacity-50"
+                  >
+                    {sending ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-5 h-5" />
+                        Send Message
+                      </>
+                    )}
+                  </button>
+                </form>
+              </div>
+            </motion.div>
           </div>
         </Container>
+      </Section>
+
+      <Section className="bg-slate-50 p-0 h-96">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3953.7614644989347!2d98.34741!3d7.8621!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30503a5a5a5a5a5a%3A0x1234567890abcdef!2sHanuman%20World%20Phuket!5e0!3m2!1sen!2sth!4v1234567890"
+          width="100%"
+          height="100%"
+          style={{ border: 0 }}
+          allowFullScreen
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          title="Hanuman World Location"
+        />
       </Section>
     </main>
   );

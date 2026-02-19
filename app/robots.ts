@@ -1,16 +1,30 @@
 import { MetadataRoute } from 'next';
+import { siteConfig } from '@/lib/seo/config';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = 'https://hanumanworldphuket.com';
-
   return {
     rules: [
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin/', '/api/'],
+        disallow: [
+          '/admin/',
+          '/api/',
+          '/checkout/success',
+          '/_next/',
+          '/private/',
+        ],
+      },
+      {
+        userAgent: 'GPTBot',
+        disallow: ['/'],
+      },
+      {
+        userAgent: 'CCBot',
+        disallow: ['/'],
       },
     ],
-    sitemap: `${baseUrl}/sitemap.xml`,
+    sitemap: `${siteConfig.url}/sitemap.xml`,
+    host: siteConfig.url,
   };
 }

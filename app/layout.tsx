@@ -1,43 +1,30 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter, Oswald } from 'next/font/google';
 import './globals.css';
+import { defaultMetadata } from '@/lib/seo/config';
+import { OrganizationSchema, WebsiteSchema, LocalBusinessSchema, AmusementParkSchema, SpeakableSchema, HowToBookSchema } from '@/lib/seo/structured-data';
+import { TrackingScriptsHead, TrackingScriptsBody } from '@/components/TrackingScripts';
 
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
+  display: 'swap',
 });
 
 const oswald = Oswald({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600', '700'],
   variable: '--font-oswald',
+  display: 'swap',
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: 'Hanuman World Phuket | Thailand\'s Biggest Zipline Adventure',
-    template: '%s | Hanuman World Phuket',
-  },
-  description: 'Experience Thailand\'s biggest zipline adventure at Hanuman World Phuket. Over 30 platforms, 16 ziplines, roller zipline, skywalk & more through the ancient rainforest.',
-  keywords: ['zipline', 'phuket', 'adventure', 'thailand', 'hanuman world', 'roller zipline', 'skywalk', 'slingshot'],
-  authors: [{ name: 'Hanuman World Phuket' }],
-  openGraph: {
-    type: 'website',
-    locale: 'en_US',
-    url: 'https://hanumanworldphuket.com',
-    siteName: 'Hanuman World Phuket',
-    title: 'Hanuman World Phuket | Thailand\'s Biggest Zipline Adventure',
-    description: 'Experience Thailand\'s biggest zipline adventure at Hanuman World Phuket.',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Hanuman World Phuket | Thailand\'s Biggest Zipline Adventure',
-    description: 'Experience Thailand\'s biggest zipline adventure at Hanuman World Phuket.',
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
+export const metadata: Metadata = defaultMetadata;
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: '#1a237e',
 };
 
 export default function RootLayout({
@@ -47,7 +34,23 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${oswald.variable}`}>
-      <body className="antialiased">{children}</body>
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="manifest" href="/manifest.json" />
+        <OrganizationSchema />
+        <WebsiteSchema />
+        <LocalBusinessSchema />
+        <AmusementParkSchema />
+        <SpeakableSchema />
+        <HowToBookSchema />
+      </head>
+      <body className="antialiased">
+        <TrackingScriptsBody />
+        {children}
+        <TrackingScriptsHead />
+      </body>
     </html>
   );
 }
