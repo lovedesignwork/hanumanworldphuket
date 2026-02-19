@@ -9,34 +9,27 @@ import { Button } from '@/components/ui';
 const slides = [
   {
     id: 1,
-    image: '/images/Hero%20Image/Combined%20Zipline.jpg',
+    image: '/images/Hero%20Image/Zipline.jpg',
     title: "Thailand's Biggest",
     subtitle: 'ZIPLINE ADVENTURE',
     description: 'Experience the ultimate jungle adventure with over 30 platforms and 16 ziplines through the ancient rainforest.',
   },
   {
     id: 2,
-    image: '/images/Hero%20Image/Zipline%2032%20Platform.jpg',
-    title: '32 Platform Experience',
-    subtitle: 'ULTIMATE ZIPLINE',
-    description: 'Our most comprehensive adventure featuring all 32 platforms, sky bridges, and the famous dual zipline.',
-  },
-  {
-    id: 3,
-    image: '/images/Hero%20Image/Roller%20Zipline.jpg',
+    image: '/images/Hero%20Image/Roller.jpg',
     title: 'First in Thailand',
     subtitle: 'UNIQUE ROLLER ZIPLINE',
     description: 'Experience the thrilling roller coaster zipline - a unique combination of speed and excitement through the treetops.',
   },
   {
-    id: 4,
+    id: 3,
     image: '/images/Hero%20Image/Skywalk.jpg',
     title: 'Walk Among the Clouds',
     subtitle: 'BREATHTAKING SKYWALK',
     description: 'Elevated walkways offer stunning panoramic views of the Phuket jungle. Perfect for nature lovers and photographers.',
   },
   {
-    id: 5,
+    id: 4,
     image: '/images/Hero%20Image/Slingshot2.jpg',
     title: 'Maximum Adrenaline',
     subtitle: 'EXTREME SLINGSHOT',
