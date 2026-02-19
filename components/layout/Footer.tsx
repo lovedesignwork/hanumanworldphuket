@@ -1,0 +1,131 @@
+'use client';
+
+import Link from 'next/link';
+import { Facebook, Instagram, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import { Container } from '@/components/ui';
+
+const footerLinks = {
+  packages: [
+    { name: 'World A+', href: '/packages/combined' },
+    { name: 'World B+', href: '/packages/combined' },
+    { name: 'World C+', href: '/packages/combined' },
+    { name: '32 Platform Zipline', href: '/packages/zipline' },
+    { name: 'Roller Zipline', href: '/packages/roller' },
+    { name: 'Skywalk', href: '/packages/skywalk' },
+  ],
+  company: [
+    { name: 'About Us', href: '/about' },
+    { name: 'Blog', href: '/blog' },
+    { name: 'FAQ', href: '/faq' },
+    { name: 'Contact', href: '/contact' },
+    { name: 'Careers', href: '/careers' },
+  ],
+  legal: [
+    { name: 'Privacy Policy', href: '/privacy' },
+    { name: 'Terms of Service', href: '/terms' },
+    { name: 'Refund Policy', href: '/refund' },
+  ],
+};
+
+const socialLinks = [
+  { name: 'Facebook', icon: Facebook, href: 'https://facebook.com/hanumanworld' },
+  { name: 'Instagram', icon: Instagram, href: 'https://instagram.com/hanumanworld' },
+  { name: 'YouTube', icon: Youtube, href: 'https://youtube.com/hanumanworld' },
+];
+
+export function Footer() {
+  return (
+    <footer className="bg-primary-dark border-t border-white/10">
+      <Container>
+        <div className="py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div>
+            <h3 className="text-xl font-bold text-white mb-4 font-[family-name:var(--font-oswald)]">
+              HANUMAN WORLD
+            </h3>
+            <p className="text-foreground-muted mb-4">
+              Thailand&apos;s biggest zipline adventure park located in the heart of Phuket&apos;s ancient rainforest.
+            </p>
+            <div className="flex gap-4">
+              {socialLinks.map((social) => (
+                <a
+                  key={social.name}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-accent transition-colors"
+                  aria-label={social.name}
+                >
+                  <social.icon className="w-5 h-5 text-white" />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h4 className="text-lg font-semibold text-white mb-4 font-[family-name:var(--font-oswald)]">
+              PACKAGES
+            </h4>
+            <ul className="space-y-2">
+              {footerLinks.packages.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    className="text-foreground-muted hover:text-accent transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-lg font-semibold text-white mb-4 font-[family-name:var(--font-oswald)]">
+              COMPANY
+            </h4>
+            <ul className="space-y-2">
+              {footerLinks.company.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    className="text-foreground-muted hover:text-accent transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-lg font-semibold text-white mb-4 font-[family-name:var(--font-oswald)]">
+              CONTACT
+            </h4>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-3 text-foreground-muted">
+                <MapPin className="w-5 h-5 mt-0.5 text-accent" />
+                <span>105 Moo 4, Chaofa West Road, Chalong, Muang, Phuket 83130</span>
+              </li>
+              <li className="flex items-center gap-3 text-foreground-muted">
+                <Phone className="w-5 h-5 text-accent" />
+                <a href="tel:+66763016110" className="hover:text-accent transition-colors">
+                  +66 76 301 6110
+                </a>
+              </li>
+              <li className="flex items-center gap-3 text-foreground-muted">
+                <Mail className="w-5 h-5 text-accent" />
+                <a href="mailto:info@hanumanworld.com" className="hover:text-accent transition-colors">
+                  info@hanumanworld.com
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="py-6 border-t border-white/10 text-center text-foreground-muted text-sm">
+          <p>&copy; {new Date().getFullYear()} Hanuman World Phuket. All rights reserved.</p>
+        </div>
+      </Container>
+    </footer>
+  );
+}
