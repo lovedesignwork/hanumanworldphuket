@@ -20,7 +20,7 @@ export interface Package {
   shortDescription: string;
   price: number;
   duration: string;
-  category: 'combined' | 'zipline' | 'roller' | 'skywalk' | 'slingshot';
+  category: 'combined' | 'zipline' | 'roller' | 'skywalk' | 'slingshot' | 'luge';
   image: string;
   gallery: string[];
   features: string[];

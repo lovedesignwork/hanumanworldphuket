@@ -244,6 +244,25 @@ export const packages: Package[] = [
     includesMeal: false,
     includesTransfer: false,
   },
+  {
+    id: 'luge',
+    slug: 'luge',
+    name: 'HANUMAN LUGE',
+    description: 'Phuket\'s first and only luge park! Race down 650 metres of twisting jungle track on a gravity-powered luge cart. Part of the Hanuman World adventure park.',
+    shortDescription: 'Phuket\'s first gravity luge adventure',
+    price: 590,
+    duration: '30 minutes',
+    category: 'luge',
+    image: '/images/Package%20image/luge.jpg',
+    gallery: [],
+    features: ['650m Downhill Track', 'Gravity-Powered Luge Cart', 'Scenic Jungle Views', 'Multiple Rides Available'],
+    included: ['Safety equipment', 'Professional guide', 'Insurance', 'Luge cart'],
+    requirements: ['Minimum height: 110 cm (solo) or 85 cm (tandem)', 'Good health condition'],
+    featured: false,
+    popular: false,
+    includesMeal: false,
+    includesTransfer: false,
+  },
 ];
 
 export function getPackageById(id: string): Package | undefined {

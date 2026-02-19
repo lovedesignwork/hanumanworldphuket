@@ -35,8 +35,28 @@ const socialLinks = [
 
 export function Footer() {
   return (
-    <footer className="bg-primary-dark border-t border-white/10">
-      <Container>
+    <footer className="relative overflow-hidden border-t border-white/10" style={{ backgroundColor: '#1a237e' }}>
+      {/* Big rotating circles */}
+      <img 
+        src="/images/circlebig.png" 
+        alt="" 
+        className="absolute opacity-10 pointer-events-none animate-spin-slow"
+        style={{ width: '600px', height: '600px', top: '-200px', left: '-150px' }}
+      />
+      <img 
+        src="/images/circlebig.png" 
+        alt="" 
+        className="absolute opacity-10 pointer-events-none animate-spin-slow-reverse"
+        style={{ width: '500px', height: '500px', top: '-100px', right: '-100px' }}
+      />
+      <img 
+        src="/images/circlebig.png" 
+        alt="" 
+        className="absolute opacity-10 pointer-events-none animate-spin-slow"
+        style={{ width: '400px', height: '400px', bottom: '-150px', left: '40%' }}
+      />
+      
+      <Container className="relative z-10">
         <div className="py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
             <h3 className="text-xl font-bold text-white mb-4 font-[family-name:var(--font-oswald)]">

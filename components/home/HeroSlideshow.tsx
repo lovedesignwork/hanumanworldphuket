@@ -75,7 +75,12 @@ export function HeroSlideshow() {
       </AnimatePresence>
 
       <div className="absolute top-0 left-0 right-0 h-28 bg-gradient-to-b from-primary-dark via-primary-dark/60 to-transparent z-10 pointer-events-none" />
-      <div className="absolute bottom-0 left-0 right-0 h-28 bg-gradient-to-t from-primary-dark via-primary-dark/60 to-transparent z-10 pointer-events-none" />
+      <div 
+        className="absolute bottom-0 left-0 right-0 h-56 z-10 pointer-events-none"
+        style={{
+          background: 'linear-gradient(to top, #0d1259 0%, #0d1259 10%, rgba(13, 18, 89, 0.9) 30%, rgba(13, 18, 89, 0.5) 60%, rgba(13, 18, 89, 0.2) 85%, transparent 100%)'
+        }}
+      />
 
       <div className="relative z-10 h-full flex items-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
@@ -90,16 +95,25 @@ export function HeroSlideshow() {
               textShadow: '0 2px 10px rgba(0,0,0,0.8), 0 4px 20px rgba(0,0,0,0.6), 0 0 40px rgba(0,0,0,0.4)',
             }}
           >
-            <p className="text-accent font-semibold text-lg mb-2">
+            <p 
+              className="text-accent font-semibold text-lg mb-2"
+              style={{ textShadow: '0 0 10px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,1), 0 4px 30px rgba(0,0,0,0.9), 0 8px 40px rgba(0,0,0,0.8)' }}
+            >
               {slides[currentSlide].title}
             </p>
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 font-[family-name:var(--font-oswald)] tracking-wide">
+            <h1 
+              className="text-5xl md:text-7xl font-bold text-white mb-6 font-[family-name:var(--font-oswald)] tracking-wide"
+              style={{ textShadow: '0 0 15px rgba(0,0,0,1), 0 0 30px rgba(0,0,0,1), 0 6px 40px rgba(0,0,0,0.95), 0 12px 60px rgba(0,0,0,0.9), 0 0 100px rgba(0,0,0,0.7)' }}
+            >
               {slides[currentSlide].subtitle}
             </h1>
-            <p className="text-xl text-white/90 mb-8 leading-relaxed">
+            <p 
+              className="text-xl text-white/90 mb-8 leading-relaxed"
+              style={{ textShadow: '0 0 10px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,1), 0 4px 30px rgba(0,0,0,0.9), 0 8px 40px rgba(0,0,0,0.8)' }}
+            >
               {slides[currentSlide].description}
             </p>
-            <div className="flex gap-4">
+            <div className="flex gap-4" style={{ filter: 'drop-shadow(0 0 15px rgba(0,0,0,0.9)) drop-shadow(0 8px 20px rgba(0,0,0,0.8))' }}>
               <Link href="/packages">
                 <Button size="lg">Book Your Adventure</Button>
               </Link>

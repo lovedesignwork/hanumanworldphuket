@@ -1,4 +1,15 @@
-import { HeroSlideshow, FeaturedPackages, WhyChooseUs, PhotoGallery } from '@/components/home';
+import { 
+  HeroSlideshow, 
+  FeaturedPackages, 
+  WhyChooseUs, 
+  PhotoGallery,
+  Testimonials,
+  SafetyCertifications,
+  Location,
+  InstagramFeed,
+  CTABanner,
+  Partners,
+} from '@/components/home';
 
 export default function HomePage() {
   return (
@@ -7,6 +18,12 @@ export default function HomePage() {
       <FeaturedPackages />
       <WhyChooseUs />
       <PhotoGallery />
+      <Testimonials />
+      <SafetyCertifications />
+      <CTABanner />
+      <InstagramFeed />
+      <Location />
+      <Partners />
     </main>
   );
 }

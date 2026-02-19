@@ -69,8 +69,8 @@ export function WhyChooseUs() {
                 <div className="absolute inset-0 bg-primary-dark/30 rounded-2xl" />
                 
                 <div className="relative z-10">
-                  <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
-                    <feature.icon className="w-8 h-8 text-accent" />
+                  <div className="w-24 h-24 mx-auto mb-6 rounded-2xl bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
+                    <feature.icon className="w-12 h-12 text-accent" />
                   </div>
                   <h3 className="text-xl font-bold text-white mb-3 font-[family-name:var(--font-oswald)]">
                     {feature.title}

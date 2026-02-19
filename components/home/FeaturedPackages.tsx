@@ -27,6 +27,7 @@ const getContentGradient = (packageId?: string): string => {
   if (packageId === 'world-d-plus') return 'animated-card-bg-blue-green';
   if (packageId === 'world-b-plus') return 'animated-card-bg-mint';
   if (packageId === 'world-a-plus') return 'animated-card-bg-deep-blue';
+  if (packageId === 'luge') return 'animated-card-bg-green';
   if (['zipline-18', 'zipline-32', 'zipline-10', 'roller-zipline', 'skywalk', 'slingshot'].includes(packageId || '')) {
     return 'animated-card-bg-turquoise-mint';
   }
@@ -37,6 +38,7 @@ const getButtonGradient = (packageId?: string): string => {
   if (packageId === 'world-d-plus') return 'animated-btn-blue-green';
   if (packageId === 'world-b-plus') return 'animated-btn-mint';
   if (packageId === 'world-a-plus') return 'animated-btn-deep-blue';
+  if (packageId === 'luge') return 'animated-btn-green';
   if (['zipline-18', 'zipline-32', 'zipline-10', 'roller-zipline', 'skywalk', 'slingshot'].includes(packageId || '')) {
     return 'animated-btn-turquoise-mint';
   }
@@ -62,25 +64,17 @@ const getRandomPosition = (index: number) => {
 export function FeaturedPackages() {
   const worldAPlus = packages.find(pkg => pkg.id === 'world-a-plus');
   const mainPackages = useMemo(() => 
-    packages.filter(pkg => !['world-a-plus', 'roller-zipline', 'skywalk', 'slingshot'].includes(pkg.id)),
+    packages.filter(pkg => !['world-a-plus', 'roller-zipline', 'skywalk', 'slingshot', 'luge'].includes(pkg.id)),
     []
   );
   const threeColumnPackages = useMemo(() => 
     packages.filter(pkg => ['roller-zipline', 'skywalk', 'slingshot'].includes(pkg.id)),
     []
   );
+  const lugePackage = packages.find(pkg => pkg.id === 'luge');
 
   return (
-    <Section className="bg-primary-dark relative overflow-hidden">
-      <div 
-        className="absolute inset-0 opacity-20 pointer-events-none"
-        style={{
-          backgroundImage: 'url(/images/grungebg.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        }}
-      />
+    <Section className="relative overflow-hidden" style={{ backgroundColor: '#0d1259' }}>
       
       {/* Big Circle Background Decorations */}
       <img 
@@ -366,6 +360,87 @@ export function FeaturedPackages() {
             </motion.div>
           ))}
         </motion.div>
+
+        {/* Hanuman Luge - Full Width Single Column */}
+        {lugePackage && (
+          <div className="mt-8">
+            <motion.div
+              className="group relative"
+              variants={staggerItem}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+            >
+              <div className="p-[3px] rounded-2xl animated-silver-border">
+                <div className="relative flex flex-col lg:flex-row rounded-2xl overflow-hidden bg-gradient-to-b lg:bg-gradient-to-r from-primary/90 to-primary-dark transition-all duration-300">
+                  <div className="relative h-72 lg:h-auto lg:w-[40%] overflow-hidden">
+                    <div 
+                      className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                      style={{ backgroundImage: `url(${lugePackage.image})`, backgroundColor: '#1a237e' }}
+                    />
+                    <div className="absolute top-4 left-4">
+                      <Badge>{lugePackage.duration}</Badge>
+                    </div>
+                    <div className="absolute top-4 right-4">
+                      <Badge variant="accent" className="bg-green-500/90 text-white">NEW ATTRACTION</Badge>
+                    </div>
+                  </div>
+                  
+                  <div className={`relative p-8 lg:p-10 flex flex-col justify-center lg:w-[60%] min-h-[350px] animated-card-bg-green overflow-hidden`}>
+                    <div 
+                      className="absolute w-[512px] h-[512px] opacity-10 pointer-events-none animate-circle-orbit-1"
+                      style={{
+                        backgroundImage: 'url(/images/circlebg.png)',
+                        backgroundSize: 'contain',
+                        backgroundRepeat: 'no-repeat',
+                        top: '-10%',
+                        right: '-15%',
+                      }}
+                    />
+                    
+                    <div className="text-center mb-2 relative z-10">
+                      <span className="text-green-400 text-sm font-semibold uppercase tracking-wider">Part of Hanuman World</span>
+                    </div>
+                    
+                    <h3 className="text-[55px] font-[family-name:var(--font-oswald)] font-medium tracking-wide text-white mb-4 relative z-10 text-center">
+                      {lugePackage.name}
+                    </h3>
+                    
+                    <div className="flex justify-center gap-8 mb-4 relative z-10">
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-white font-[family-name:var(--font-oswald)]">650m</div>
+                        <div className="text-[11px] text-white/80 uppercase font-semibold tracking-wider">TRACK LENGTH</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-white font-[family-name:var(--font-oswald)]">100%</div>
+                        <div className="text-[11px] text-white/80 uppercase font-semibold tracking-wider">YOU CONTROL</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-3xl font-bold text-white font-[family-name:var(--font-oswald)]">ALL</div>
+                        <div className="text-[11px] text-white/80 uppercase font-semibold tracking-wider">AGES WELCOME</div>
+                      </div>
+                    </div>
+                    
+                    <p className="text-white/80 text-center mb-4 relative z-10 max-w-xl mx-auto">
+                      Phuket's first gravity luge! Race down 650m of jungle track. Combine with any zipline package for the ultimate adventure.
+                    </p>
+                    
+                    <Link href="/packages/luge" className="block relative z-10">
+                      <div className="p-[2px] rounded-xl transition-all duration-300 hover:scale-105 animated-silver-border-btn">
+                        <button className={`relative z-10 w-full flex items-center justify-center gap-3 py-3.5 rounded-xl animated-btn-green text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden`}>
+                          <CheckCircle className="w-[19px] h-[19px]" />
+                          <span className="font-[family-name:var(--font-oswald)] font-normal tracking-wide text-[19px]">
+                            {formatPrice(lugePackage.price)} / PERSON
+                          </span>
+                        </button>
+                      </div>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
       </Container>
     </Section>
   );

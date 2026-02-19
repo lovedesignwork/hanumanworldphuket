@@ -280,9 +280,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .animated-btn-deep-blue {
-  background: linear-gradient(135deg, #1a0f00, #2d1a00, #3d2200, #5c3300, #7a5a15, #8b6914, #a07820, #8b6914, #7a5a15, #5c3300, #3d2200, #2d1a00, #1a0f00);
-  background-size: 300% 300%;
-  animation: btn-diagonal 15s ease infinite;
+  background: linear-gradient(135deg, #0d1259, #1a237e, #1a3a5c, #0d4a4a, #1a5a5a, #0d5a4a, #1a4a3a, #0d5a4a, #1a5a5a, #0d4a4a, #1a3a5c, #1a237e, #0d1259, #2a1a5c, #3d1a6a, #2a1a5c, #0d1259);
+  background-size: 400% 400%;
+  animation: btn-diagonal 20s ease infinite;
 }
 
 @keyframes btn-diagonal {
@@ -299,6 +299,12 @@ h1, h2, h3, h4, h5, h6 {
 
 .animated-btn-turquoise-mint {
   background: linear-gradient(135deg, #0d1259, #0d4f4f, #0d1259, #1a237e, #0d1259);
+  background-size: 400% 400%;
+  animation: gradient-rotate-reverse 15s ease infinite;
+}
+
+.animated-btn-green {
+  background: linear-gradient(135deg, #0d1259, #0a3622, #14532d, #166534, #14532d, #0a3622, #0d1259);
   background-size: 400% 400%;
   animation: gradient-rotate-reverse 15s ease infinite;
 }
@@ -332,6 +338,25 @@ h1, h2, h3, h4, h5, h6 {
 
 .animated-card-bg-mint {
   background: linear-gradient(135deg, #1a237e, #064e3b, #0d1259, #064e3b, #1a237e);
+  background-size: 400% 400%;
+  animation: card-bg-shift 100s ease infinite;
+}
+
+.animated-card-bg-green {
+  background: linear-gradient(
+    135deg,
+    #0d1259,
+    #0a3622,
+    #14532d,
+    #166534,
+    #15803d,
+    #166534,
+    #14532d,
+    #0a3622,
+    #0d1259,
+    #1a237e,
+    #0d1259
+  );
   background-size: 400% 400%;
   animation: card-bg-shift 100s ease infinite;
 }

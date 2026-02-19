@@ -12,6 +12,7 @@ const navigation = [
   { name: 'ROLLER', href: '/packages/roller' },
   { name: 'SKYWALK', href: '/packages/skywalk' },
   { name: 'SLINGSHOT', href: '/packages/slingshot' },
+  { name: 'LUGE', href: '/packages/luge' },
   { name: 'BLOG', href: '/blog' },
   { name: 'FAQ', href: '/faq' },
   { name: 'CONTACT', href: '/contact' },
@@ -32,10 +33,19 @@ export function Header() {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-primary-dark/95 backdrop-blur-md shadow-lg' : 'bg-transparent'
+        isScrolled ? 'bg-primary/95 backdrop-blur-md shadow-lg' : 'bg-primary/95 backdrop-blur-md'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Gradient overlay for menu visibility on hero */}
+      {!isScrolled && (
+        <div 
+          className="absolute left-0 right-0 top-0 h-48 pointer-events-none z-0"
+          style={{
+            background: 'linear-gradient(to bottom, rgba(13, 18, 89, 0.95) 0%, rgba(13, 18, 89, 0.8) 30%, rgba(13, 18, 89, 0.5) 60%, rgba(13, 18, 89, 0.2) 80%, transparent 100%)'
+          }}
+        />
+      )}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex items-center justify-between h-20">
           <Link href="/" className="flex items-center">
             <Image
