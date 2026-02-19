@@ -253,7 +253,7 @@ export const packages: Package[] = [
     price: 590,
     duration: '30 minutes',
     category: 'luge',
-    image: '/images/Package%20image/luge.jpg',
+    image: '/images/lugee.jpg',
     gallery: [],
     features: ['650m Downhill Track', 'Gravity-Powered Luge Cart', 'Scenic Jungle Views', 'Multiple Rides Available'],
     included: ['Safety equipment', 'Professional guide', 'Insurance', 'Luge cart'],

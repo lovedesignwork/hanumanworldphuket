@@ -37,19 +37,19 @@ const comboPackages = [
     name: 'LUGE + ZIPLINE 10',
     description: 'Add luge to your 10 platform zipline adventure',
     savings: 'Save ฿200',
-    href: '/contact',
+    href: '/booking?package=zipline-10',
   },
   {
     name: 'LUGE + ZIPLINE 18',
     description: 'Combine luge with 18 platform zipline course',
     savings: 'Save ฿300',
-    href: '/contact',
+    href: '/booking?package=zipline-18',
   },
   {
     name: 'LUGE + WORLD A+',
     description: 'The ultimate combo - luge with our complete package',
     savings: 'Save ฿500',
-    href: '/contact',
+    href: '/booking?package=world-a-plus',
   },
 ];
 
@@ -148,7 +148,7 @@ export default function LugePage() {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="flex flex-col sm:flex-row justify-center gap-4"
           >
-            <Link href="/contact">
+            <Link href={`/booking?package=${pkg.id}`}>
               <button className="px-10 py-4 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold text-xl transition-all duration-300 hover:scale-105 shadow-lg shadow-green-500/30">
                 BOOK LUGE: {formatPrice(pkg.price)}
               </button>
@@ -360,7 +360,7 @@ export default function LugePage() {
             </p>
             
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link href="/contact">
+              <Link href={`/booking?package=${pkg.id}`}>
                 <button className="px-10 py-4 rounded-xl bg-green-500 hover:bg-green-600 text-white font-bold text-xl transition-all duration-300 hover:scale-105 shadow-lg shadow-green-500/30">
                   BOOK LUGE NOW
                 </button>

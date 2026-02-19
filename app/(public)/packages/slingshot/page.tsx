@@ -178,7 +178,7 @@ export default function SlingshotPage() {
                   </div>
                 </div>
                 
-                <Link href="/contact" className="flex-shrink-0">
+                <Link href={`/booking?package=${pkg.id}`} className="flex-shrink-0">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -354,7 +354,7 @@ export default function SlingshotPage() {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Link href="/contact">
+                <Link href={`/booking?package=${pkg.id}`}>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}

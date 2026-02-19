@@ -82,7 +82,7 @@ export function CTABanner() {
                   </div>
                   <p className="text-white/70 text-lg mb-6">per person</p>
                   
-                  <Link href="/packages/combined" className="block">
+                  <Link href="/booking" className="block">
                     <div className="p-[2px] rounded-xl animated-silver-border-btn transition-all duration-300 hover:scale-105">
                       <button className="relative z-10 w-full flex items-center justify-center gap-3 py-4 px-8 rounded-xl animated-btn-deep-blue text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden">
                         <span className="text-xl font-bold font-[family-name:var(--font-oswald)] tracking-wider">

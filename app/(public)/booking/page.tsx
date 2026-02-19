@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Check, Calendar, Clock, Users, Minus, Plus, Car, Navigation, 
@@ -20,17 +21,65 @@ const timeSlots = [
 ];
 
 const allBookablePackages = packages.filter(pkg => 
-  ['world-a-plus', 'world-b-plus', 'world-c-plus', 'world-d-plus', 'zipline-32', 'zipline-18', 'zipline-10', 'roller-zipline', 'skywalk', 'slingshot', 'luge'].includes(pkg.id)
+  ['world-a-plus', 'world-b-plus', 'world-c-plus', 'world-d-plus', 'zipline-32', 'zipline-18', 'zipline-10', 'roller-zipline', 'skywalk', 'slingshot'].includes(pkg.id)
 );
+
+const addonPackages = packages.filter(pkg => 
+  ['roller-zipline', 'skywalk', 'slingshot', 'luge'].includes(pkg.id)
+);
+
+// Promotional add-ons
+const promotionalAddons = [
+  {
+    id: 'luge-2-rides',
+    name: 'Luge 2 Rides',
+    description: 'Kids aged 4-9 years must ride the Luge with a guardian. Kids above 10 years can ride alone.',
+    price: 800,
+    originalPrice: 1000,
+    discount: '20% off',
+    image: '/images/lugee.jpg',
+  },
+  {
+    id: 'zipline-photos',
+    name: 'Zipline Photos',
+    description: 'Zipline Photography Services 10% OFF',
+    price: 770,
+    originalPrice: 856,
+    discount: '10% off',
+    image: '/images/Package%20image/32PF.JPG',
+  },
+  {
+    id: 'roller-videos',
+    name: 'Roller Videos',
+    description: 'Roller Videos 20% OFF',
+    price: 428,
+    originalPrice: 535,
+    discount: '20% off',
+    image: '/images/Package%20image/roller.jpg',
+  },
+];
 
 const PRIVATE_TRANSFER_PRICE = 2500;
 const NON_PLAYER_PRICE = 300;
 const MAX_PRIVATE_PASSENGERS = 10;
 
 export default function BookingPage() {
+  const searchParams = useSearchParams();
+  
   // Selected package
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const selectedPackage = packages.find(p => p.id === selectedPackageId);
+
+  // Auto-select package from URL parameter
+  useEffect(() => {
+    const packageParam = searchParams.get('package');
+    if (packageParam) {
+      const foundPackage = packages.find(p => p.id === packageParam);
+      if (foundPackage) {
+        setSelectedPackageId(packageParam);
+      }
+    }
+  }, [searchParams]);
 
   // Form state
   const [selectedDate, setSelectedDate] = useState('');
@@ -49,6 +98,12 @@ export default function BookingPage() {
   
   // Dropdown state
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  
+  // Selected add-ons
+  const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
+  
+  // Promotional add-ons with quantity
+  const [promoAddonQuantities, setPromoAddonQuantities] = useState<Record<string, number>>({});
 
 
   // Update private transfer passengers min when guest count changes
@@ -64,13 +119,53 @@ export default function BookingPage() {
   const handleSelectPackage = (pkgId: string) => {
     setSelectedPackageId(pkgId);
     setIsDropdownOpen(false);
+    setSelectedAddons([]);
+  };
+
+  // Toggle addon selection
+  const toggleAddon = (addonId: string) => {
+    setSelectedAddons(prev => 
+      prev.includes(addonId) 
+        ? prev.filter(id => id !== addonId)
+        : [...prev, addonId]
+    );
+  };
+
+  // Get available addons (exclude the selected main package)
+  const availableAddons = addonPackages.filter(pkg => pkg.id !== selectedPackageId);
+
+  // Update promo addon quantity
+  const updatePromoAddonQty = (addonId: string, delta: number) => {
+    setPromoAddonQuantities(prev => {
+      const current = prev[addonId] || 0;
+      const newQty = Math.max(0, current + delta);
+      return { ...prev, [addonId]: newQty };
+    });
   };
 
   // Price calculations
   const prices = useMemo(() => {
-    if (!selectedPackage) return { base: 0, transfer: 0, total: 0 };
+    if (!selectedPackage) return { base: 0, addons: 0, promoAddons: 0, transfer: 0, total: 0 };
     
     const base = selectedPackage.price * guestCount;
+
+    let addons = 0;
+    selectedAddons.forEach(addonId => {
+      const addon = packages.find(p => p.id === addonId);
+      if (addon) {
+        addons += addon.price * guestCount;
+      }
+    });
+
+    let promoAddons = 0;
+    Object.entries(promoAddonQuantities).forEach(([addonId, qty]) => {
+      if (qty > 0) {
+        const promo = promotionalAddons.find(p => p.id === addonId);
+        if (promo) {
+          promoAddons += promo.price * qty;
+        }
+      }
+    });
 
     let transfer = 0;
     if (privateTransfer) {
@@ -83,17 +178,20 @@ export default function BookingPage() {
 
     return {
       base,
+      addons,
+      promoAddons,
       transfer,
-      total: base + transfer
+      total: base + addons + promoAddons + transfer
     };
-  }, [selectedPackage, guestCount, privateTransfer, needPickup, nonPlayerCount]);
+  }, [selectedPackage, guestCount, selectedAddons, promoAddonQuantities, privateTransfer, needPickup, nonPlayerCount]);
 
-  const isFormValid = selectedPackageId && selectedDate && selectedTime && (needPickup ? hotelName.trim() : true);
+  const isFormValid = selectedPackageId && selectedDate && selectedTime && 
+    (selectedPackage?.includesTransfer ? (needPickup ? hotelName.trim() : true) : true);
 
   return (
     <main className="min-h-screen pt-20 bg-[#0d1259]">
       <Section 
-        className="relative overflow-hidden"
+        className="relative overflow-hidden min-h-[calc(100vh-80px)]"
         style={{ background: 'linear-gradient(135deg, #0d1259 0%, #1a237e 30%, #2a1a5c 60%, #0d1259 100%)' }}
       >
         <Container className="relative z-10">
@@ -130,11 +228,11 @@ export default function BookingPage() {
                     {selectedPackage ? (
                       <div className="flex items-center gap-4">
                         <div 
-                          className="w-16 h-16 rounded-lg bg-cover bg-center flex-shrink-0"
+                          className="w-24 h-24 rounded-lg bg-cover bg-center flex-shrink-0"
                           style={{ backgroundImage: `url(${selectedPackage.image})` }}
                         />
                         <div className="flex-grow min-w-0">
-                          <h3 className="text-lg font-[family-name:var(--font-oswald)] font-medium text-white">
+                          <h3 className="text-[29px] font-[family-name:var(--font-oswald)] font-medium text-white">
                             {selectedPackage.name}
                           </h3>
                           <div className="flex items-center gap-3 text-sm text-white/60">
@@ -220,25 +318,151 @@ export default function BookingPage() {
                   </AnimatePresence>
                 </div>
 
-                {/* Package Description */}
+                {/* Popular Packages Preview (when no package selected) */}
+                {!selectedPackage && (
+                  <div className="mt-6">
+                    <h3 className="text-lg font-[family-name:var(--font-oswald)] font-medium text-white/70 mb-3">
+                      Popular packages:
+                    </h3>
+                    <div className="space-y-2">
+                      {allBookablePackages.slice(0, 7).map((pkg) => (
+                        <div
+                          key={pkg.id}
+                          onClick={() => handleSelectPackage(pkg.id)}
+                          className="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-white/5 cursor-pointer hover:bg-white/10 hover:border-white/20 transition-all"
+                        >
+                          <div 
+                            className="w-[120px] h-[120px] rounded-lg bg-cover bg-center flex-shrink-0"
+                            style={{ backgroundImage: `url(${pkg.image})` }}
+                          />
+                          <div className="flex-grow min-w-0">
+                            <h4 className="text-[30px] font-[family-name:var(--font-oswald)] font-medium text-white">
+                              {pkg.name}
+                            </h4>
+                            <p className="text-xs text-white/50">{pkg.duration}</p>
+                          </div>
+                          <div className="text-[26px] text-accent font-[family-name:var(--font-oswald)] font-medium">
+                            {formatPrice(pkg.price)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Promotional Add-ons */}
                 <AnimatePresence>
                   {selectedPackage && (
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="mt-4 p-4 rounded-xl bg-white/5 border border-white/10"
+                      className="mt-6"
                     >
-                      <p className="text-white/70 text-sm">{selectedPackage.description}</p>
-                      {selectedPackage.features && selectedPackage.features.length > 0 && (
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          {selectedPackage.features.slice(0, 5).map((feature, idx) => (
-                            <span key={idx} className="px-2 py-1 rounded-md bg-white/10 text-xs text-white/80">
-                              {feature}
-                            </span>
-                          ))}
+                      {/* Promotional Add-ons */}
+                      <div className="mt-6">
+                        <h3 className="text-lg font-[family-name:var(--font-oswald)] font-medium text-white mb-3 flex items-center gap-2">
+                          ADD ON & PROMOTION
+                        </h3>
+                        <div className="space-y-3">
+                          {promotionalAddons
+                            .filter((promo) => {
+                              if (!selectedPackage) return false;
+                              const pkgCategory = selectedPackage.category;
+                              const pkgFeatures = selectedPackage.features?.join(' ').toLowerCase() || '';
+                              const hasZipline = pkgCategory === 'zipline' || pkgCategory === 'combined' || pkgFeatures.includes('zipline');
+                              const hasRoller = pkgCategory === 'roller' || pkgCategory === 'combined' || pkgFeatures.includes('roller');
+                              const hasLuge = pkgCategory === 'luge' || pkgFeatures.includes('luge');
+                              
+                              if (promo.id === 'zipline-photos') return hasZipline;
+                              if (promo.id === 'roller-videos') return hasRoller;
+                              if (promo.id === 'luge-2-rides') return true;
+                              return true;
+                            })
+                            .map((promo) => {
+                            const qty = promoAddonQuantities[promo.id] || 0;
+                            return (
+                              <div
+                                key={promo.id}
+                                className="p-4 rounded-xl border-2 border-white/20 relative overflow-hidden"
+                                style={{ background: 'linear-gradient(135deg, #0d1259 0%, #0d4a4a 50%, #2a1a5c 100%)' }}
+                              >
+                                {/* Rotating circle decoration */}
+                                <img 
+                                  src="/images/circlebg.png" 
+                                  alt=""
+                                  className="absolute -right-10 -bottom-10 w-[160px] h-[160px] opacity-20 animate-spin-slow"
+                                />
+                                <div className="flex gap-4 relative z-10">
+                                  {/* Image */}
+                                  <div 
+                                    className="w-[50%] aspect-[10/8] rounded-lg bg-cover bg-center flex-shrink-0"
+                                    style={{ backgroundImage: `url(${promo.image})` }}
+                                  />
+                                  
+                                  {/* Info & Quantity */}
+                                  <div className="flex-grow min-w-0">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <h4 className="text-[23px] font-[family-name:var(--font-oswald)] font-normal text-white">
+                                        {promo.name}
+                                      </h4>
+                                      {promo.discount && (
+                                        <span className="px-2 py-0.5 bg-orange-500 text-white text-xs font-medium rounded">
+                                          {promo.discount}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <p className="text-xs text-white/60 mb-2">
+                                      {promo.description}
+                                    </p>
+                                    
+                                    {/* Price */}
+                                    <div className="flex items-center gap-2 mb-3">
+                                      {promo.originalPrice && (
+                                        <span className="text-base text-white/40 line-through">
+                                          {formatPrice(promo.originalPrice)}
+                                        </span>
+                                      )}
+                                      <span className="text-2xl font-[family-name:var(--font-oswald)] font-medium text-orange-400">
+                                        {formatPrice(promo.price)}
+                                      </span>
+                                      <span className="text-sm text-white/50">/ person</span>
+                                    </div>
+                                    
+                                    {/* Quantity Selector - Below Price */}
+                                    <div className="flex items-center gap-3">
+                                      <p className="text-[10px] text-white/40 uppercase">Player</p>
+                                      <div className="flex items-center gap-2">
+                                        <button
+                                          onClick={() => updatePromoAddonQty(promo.id, -1)}
+                                          disabled={qty <= 0}
+                                          className="h-8 w-8 rounded border-2 border-orange-500 bg-orange-500 flex items-center justify-center hover:bg-orange-600 hover:border-orange-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                                        >
+                                          <Minus className="w-3 h-3 text-white" />
+                                        </button>
+                                        <span className="w-8 text-center text-lg font-bold text-white">{qty}</span>
+                                        <button
+                                          onClick={() => updatePromoAddonQty(promo.id, 1)}
+                                          className="h-8 w-8 rounded border-2 border-orange-500 bg-orange-500 flex items-center justify-center hover:bg-orange-600 hover:border-orange-600"
+                                        >
+                                          <Plus className="w-3 h-3 text-white" />
+                                        </button>
+                                      </div>
+                                    </div>
+                                    
+                                    {/* Warning if add-on quantity exceeds guest count - hidden on mobile */}
+                                    {qty > guestCount && (
+                                      <div className="hidden lg:block mt-2 px-2 py-1 bg-yellow-500/20 border border-yellow-500/50 rounded text-xs text-yellow-300">
+                                        ⚠️ Add-on quantity ({qty}) exceeds number of guests ({guestCount})
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
-                      )}
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -305,13 +529,13 @@ export default function BookingPage() {
                           
                           <div>
                             <label className="block text-[10px] uppercase tracking-wider text-slate-400 mb-1.5">Time Slot</label>
-                            <div className="flex flex-wrap gap-1.5">
+                            <div className="grid grid-cols-2 gap-2">
                               {timeSlots.slice(0, 4).map((slot) => (
                                 <button
                                   key={slot.time}
                                   onClick={() => setSelectedTime(slot.time)}
                                   disabled={!slot.available}
-                                  className={`h-9 px-3 rounded-lg border-2 text-xs font-medium transition-all ${
+                                  className={`h-11 px-4 rounded-lg border-2 text-sm font-medium transition-all ${
                                     selectedTime === slot.time
                                       ? 'border-[#1a237e] bg-[#1a237e] text-white'
                                       : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
@@ -371,46 +595,49 @@ export default function BookingPage() {
                           <span className="font-bold text-slate-800 text-sm">Transport Options</span>
                         </div>
 
-                        {/* Pickup Toggle */}
-                        <div className="grid grid-cols-2 gap-3 mb-4">
-                          <button
-                            onClick={() => setNeedPickup(true)}
-                            className={`p-4 rounded-xl border-2 text-left transition-all ${
-                              needPickup 
-                                ? 'border-[#1a237e] bg-[#1a237e]/10' 
-                                : 'border-slate-200 bg-slate-50'
-                            }`}
-                          >
-                            <div className="flex items-center gap-2 mb-1">
-                              <Car className={`w-4 h-4 ${needPickup ? 'text-[#1a237e]' : 'text-slate-400'}`} />
-                              <span className={`text-sm font-medium ${needPickup ? 'text-slate-800' : 'text-slate-500'}`}>
-                                Hotel Pickup
-                              </span>
+                        {/* Show pickup options only if package includes transfer */}
+                        {selectedPackage.includesTransfer ? (
+                          <>
+                            {/* Pickup Toggle */}
+                            <div className="grid grid-cols-2 gap-3 mb-4">
+                              <button
+                                onClick={() => setNeedPickup(true)}
+                                className={`p-4 rounded-xl border-2 text-left transition-all ${
+                                  needPickup 
+                                    ? 'border-[#1a237e] bg-[#1a237e]' 
+                                    : 'border-slate-200 bg-slate-50'
+                                }`}
+                              >
+                                <div className="flex items-center gap-2 mb-1">
+                                  <Car className={`w-4 h-4 ${needPickup ? 'text-white' : 'text-slate-400'}`} />
+                                  <span className={`text-sm font-medium ${needPickup ? 'text-white' : 'text-slate-500'}`}>
+                                    Hotel Pickup
+                                  </span>
+                                </div>
+                                <p className={`text-xs font-medium ${needPickup ? 'text-white/80' : 'text-green-600'}`}>FREE SHARED TRANSFER</p>
+                              </button>
+                              
+                              <button
+                                onClick={() => setNeedPickup(false)}
+                                className={`p-4 rounded-xl border-2 text-left transition-all ${
+                                  !needPickup 
+                                    ? 'border-[#1a237e] bg-[#1a237e]' 
+                                    : 'border-slate-200 bg-slate-50'
+                                }`}
+                              >
+                                <div className="flex items-center gap-2 mb-1">
+                                  <Navigation className={`w-4 h-4 ${!needPickup ? 'text-white' : 'text-slate-400'}`} />
+                                  <span className={`text-sm font-medium ${!needPickup ? 'text-white' : 'text-slate-500'}`}>
+                                    Come Direct
+                                  </span>
+                                </div>
+                                <p className={`text-xs ${!needPickup ? 'text-white/80' : 'text-slate-400'}`}>Self arrange</p>
+                              </button>
                             </div>
-                            <p className="text-xs text-green-600 font-medium">FREE</p>
-                          </button>
-                          
-                          <button
-                            onClick={() => setNeedPickup(false)}
-                            className={`p-4 rounded-xl border-2 text-left transition-all ${
-                              !needPickup 
-                                ? 'border-[#1a237e] bg-[#1a237e]/10' 
-                                : 'border-slate-200 bg-slate-50'
-                            }`}
-                          >
-                            <div className="flex items-center gap-2 mb-1">
-                              <Navigation className={`w-4 h-4 ${!needPickup ? 'text-[#1a237e]' : 'text-slate-400'}`} />
-                              <span className={`text-sm font-medium ${!needPickup ? 'text-slate-800' : 'text-slate-500'}`}>
-                                Come Direct
-                              </span>
-                            </div>
-                            <p className="text-xs text-slate-400">Self arrange</p>
-                          </button>
-                        </div>
 
-                        {/* Hotel Details (when pickup selected) */}
-                        <AnimatePresence>
-                          {needPickup && (
+                            {/* Hotel Details (when pickup selected) */}
+                            <AnimatePresence>
+                              {needPickup && (
                             <motion.div
                               initial={{ opacity: 0, height: 0 }}
                               animate={{ opacity: 1, height: 'auto' }}
@@ -460,7 +687,7 @@ export default function BookingPage() {
                                       <Car className={`w-5 h-5 ${privateTransfer ? 'text-white' : 'text-slate-500'}`} />
                                     </div>
                                     <div>
-                                      <p className="font-medium text-slate-800 text-sm">Private Round-Trip Transfer</p>
+                                      <p className="font-medium text-slate-800 text-sm">Upgrade to Private Transfer</p>
                                       <p className="text-xs text-slate-500">Max {MAX_PRIVATE_PASSENGERS} passengers · +{formatPrice(PRIVATE_TRANSFER_PRICE)}</p>
                                     </div>
                                   </div>
@@ -495,17 +722,17 @@ export default function BookingPage() {
                                           <button
                                             onClick={() => setPrivateTransferPassengers(Math.max(guestCount, privateTransferPassengers - 1))}
                                             disabled={privateTransferPassengers <= guestCount}
-                                            className="h-8 w-8 rounded-full border border-slate-200 flex items-center justify-center hover:bg-slate-100 disabled:opacity-30"
+                                            className="h-8 w-8 rounded-full border-2 border-[#1a237e] flex items-center justify-center hover:bg-[#1a237e]/10 disabled:opacity-30"
                                           >
-                                            <Minus className="w-3 h-3" />
+                                            <Minus className="w-3 h-3 text-[#1a237e]" />
                                           </button>
                                           <span className="w-8 text-center font-bold text-slate-800">{privateTransferPassengers}</span>
                                           <button
                                             onClick={() => setPrivateTransferPassengers(Math.min(MAX_PRIVATE_PASSENGERS, privateTransferPassengers + 1))}
                                             disabled={privateTransferPassengers >= MAX_PRIVATE_PASSENGERS}
-                                            className="h-8 w-8 rounded-full border border-slate-200 flex items-center justify-center hover:bg-slate-100 disabled:opacity-30"
+                                            className="h-8 w-8 rounded-full border-2 border-[#1a237e] flex items-center justify-center hover:bg-[#1a237e]/10 disabled:opacity-30"
                                           >
-                                            <Plus className="w-3 h-3" />
+                                            <Plus className="w-3 h-3 text-[#1a237e]" />
                                           </button>
                                         </div>
                                       </div>
@@ -531,16 +758,16 @@ export default function BookingPage() {
                                       <button
                                         onClick={() => setNonPlayerCount(Math.max(0, nonPlayerCount - 1))}
                                         disabled={nonPlayerCount <= 0}
-                                        className="h-8 w-8 rounded-full border border-slate-200 flex items-center justify-center hover:bg-slate-100 disabled:opacity-30"
+                                        className="h-8 w-8 rounded-full border-2 border-[#1a237e] flex items-center justify-center hover:bg-[#1a237e]/10 disabled:opacity-30"
                                       >
-                                        <Minus className="w-3 h-3" />
+                                        <Minus className="w-3 h-3 text-[#1a237e]" />
                                       </button>
                                       <span className="w-8 text-center font-bold text-slate-800">{nonPlayerCount}</span>
                                       <button
                                         onClick={() => setNonPlayerCount(nonPlayerCount + 1)}
-                                        className="h-8 w-8 rounded-full border border-slate-200 flex items-center justify-center hover:bg-slate-100"
+                                        className="h-8 w-8 rounded-full border-2 border-[#1a237e] flex items-center justify-center hover:bg-[#1a237e]/10"
                                       >
-                                        <Plus className="w-3 h-3" />
+                                        <Plus className="w-3 h-3 text-[#1a237e]" />
                                       </button>
                                     </div>
                                   </div>
@@ -551,14 +778,46 @@ export default function BookingPage() {
                         </AnimatePresence>
 
                         {/* Meeting Point (when self-drive) */}
-                        <AnimatePresence>
-                          {!needPickup && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: 'auto' }}
-                              exit={{ opacity: 0, height: 0 }}
-                              className="p-4 rounded-xl border-2 border-[#1a237e]/30 bg-[#1a237e]/5"
-                            >
+                            <AnimatePresence>
+                              {!needPickup && (
+                                <motion.div
+                                  initial={{ opacity: 0, height: 0 }}
+                                  animate={{ opacity: 1, height: 'auto' }}
+                                  exit={{ opacity: 0, height: 0 }}
+                                  className="p-4 rounded-xl border-2 border-[#1a237e]/30 bg-[#1a237e]/5"
+                                >
+                                  <div className="flex items-start gap-3">
+                                    <div className="w-10 h-10 rounded-lg bg-[#1a237e]/10 flex items-center justify-center flex-shrink-0">
+                                      <MapPin className="w-5 h-5 text-[#1a237e]" />
+                                    </div>
+                                    <div>
+                                      <p className="font-medium text-slate-800">Hanuman World</p>
+                                      <p className="text-xs text-slate-500 mt-1">105 Moo 4, Chaofa Road, Wichit, Muang, Phuket 83130</p>
+                                      <a 
+                                        href="https://maps.app.goo.gl/hkNWgQQi1ksvYY37A" 
+                                        target="_blank"
+                                        className="mt-2 inline-flex items-center gap-1 px-3 py-1.5 bg-yellow-400 hover:bg-yellow-500 text-black text-xs font-medium rounded-lg transition-colors"
+                                      >
+                                        Open in Google Maps →
+                                      </a>
+                                    </div>
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </>
+                        ) : (
+                          /* Package does NOT include transfer - Show self-arrange only */
+                          <div className="space-y-4">
+                            <div className="p-4 rounded-xl border-2 border-amber-500/30 bg-amber-500/10">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Navigation className="w-4 h-4 text-amber-600" />
+                                <span className="text-sm font-medium text-slate-800">Self Arrange Transport</span>
+                              </div>
+                              <p className="text-xs text-slate-500">This package does not include transfer. Please arrange your own transportation to Hanuman World.</p>
+                            </div>
+                            
+                            <div className="p-4 rounded-xl border-2 border-[#1a237e]/30 bg-[#1a237e]/5">
                               <div className="flex items-start gap-3">
                                 <div className="w-10 h-10 rounded-lg bg-[#1a237e]/10 flex items-center justify-center flex-shrink-0">
                                   <MapPin className="w-5 h-5 text-[#1a237e]" />
@@ -569,15 +828,15 @@ export default function BookingPage() {
                                   <a 
                                     href="https://maps.app.goo.gl/hkNWgQQi1ksvYY37A" 
                                     target="_blank"
-                                    className="text-xs text-[#1a237e] font-medium mt-2 inline-block hover:underline"
+                                    className="mt-2 inline-flex items-center gap-1 px-3 py-1.5 bg-yellow-400 hover:bg-yellow-500 text-black text-xs font-medium rounded-lg transition-colors"
                                   >
                                     Open in Google Maps →
                                   </a>
                                 </div>
                               </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       <div className="h-px bg-slate-100" />
@@ -589,6 +848,29 @@ export default function BookingPage() {
                             <span className="text-slate-500 truncate">{selectedPackage.name} × {guestCount}</span>
                             <span className="font-semibold text-slate-700">{formatPrice(prices.base)}</span>
                           </div>
+                          
+                          {selectedAddons.length > 0 && selectedAddons.map(addonId => {
+                            const addon = packages.find(p => p.id === addonId);
+                            if (!addon) return null;
+                            return (
+                              <div key={addonId} className="flex justify-between text-sm">
+                                <span className="text-slate-500 truncate">{addon.name} × {guestCount}</span>
+                                <span className="text-green-600">+{formatPrice(addon.price * guestCount)}</span>
+                              </div>
+                            );
+                          })}
+
+                          {Object.entries(promoAddonQuantities).map(([addonId, qty]) => {
+                            if (qty <= 0) return null;
+                            const promo = promotionalAddons.find(p => p.id === addonId);
+                            if (!promo) return null;
+                            return (
+                              <div key={addonId} className="flex justify-between text-sm">
+                                <span className="text-slate-500 truncate">{promo.name} × {qty}</span>
+                                <span className="text-green-600">+{formatPrice(promo.price * qty)}</span>
+                              </div>
+                            );
+                          })}
                           
                           {privateTransfer && (
                             <div className="flex justify-between text-sm">

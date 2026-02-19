@@ -140,7 +140,7 @@ export default function SkywalkPage() {
                     Walk along suspended bridges and platforms high above the forest floor. Perfect for nature lovers and photographers seeking unique perspectives.
                   </p>
                   
-                  <Link href="/contact" className="block">
+                  <Link href={`/booking?package=${pkg.id}`} className="block">
                     <div className="p-[2px] rounded-xl transition-all duration-300 hover:scale-105 animated-silver-border-btn">
                       <button className="relative z-10 w-full flex items-center justify-center gap-3 py-4 rounded-xl animated-btn-turquoise-mint text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden">
                         <span className="font-[family-name:var(--font-oswald)] font-normal text-[23px]">
@@ -253,7 +253,7 @@ export default function SkywalkPage() {
             </p>
             
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link href="/contact">
+              <Link href={`/booking?package=${pkg.id}`}>
                 <button className="px-10 py-4 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xl transition-all duration-300 hover:scale-105 shadow-lg">
                   BOOK NOW
                 </button>

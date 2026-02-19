@@ -138,7 +138,7 @@ export default function CombinedPackagesPage() {
                       )}
                       
                       {/* Button */}
-                      <Link href={`/packages/combined/${pkg.id}`} className="block relative z-10">
+                      <Link href={`/booking?package=${pkg.id}`} className="block relative z-10">
                         <div className="p-[2px] rounded-xl transition-all duration-300 hover:scale-105 animated-silver-border-btn">
                           <button className={`relative z-10 w-full flex items-center justify-center gap-3 py-3.5 rounded-xl ${getButtonGradient(pkg.id)} text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden`}>
                             <span className="font-[family-name:var(--font-oswald)] font-normal text-[23px]">
