@@ -163,18 +163,28 @@ export default function LugePage() {
       </section>
 
       {/* Section 2: Features */}
-      <Section className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0d1259 0%, #0a2f1f 50%, #0d1259 100%)' }}>
-        <img 
-          src="/images/circlebig.png"
-          alt=""
-          className="absolute w-[700px] h-[700px] opacity-10 pointer-events-none object-contain top-[5%] right-[-15%] animate-spin-slow"
-        />
+      <Section 
+        className="relative overflow-hidden" 
+        style={{ 
+          backgroundImage: 'url(/images/lugee2.jpg)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'top center',
+          paddingTop: '100px',
+          paddingBottom: '650px',
+        }}
+      >
+        {/* Blue overlay */}
+        <div className="absolute inset-0 bg-[#0d1259]/50" />
         
         <Container className="relative z-10">
-          <SectionHeader
-            title="THE LUGE EXPERIENCE"
-            subtitle="Phuket's most exciting gravity ride"
-          />
+          <div className="mb-12 text-center" style={{ textShadow: '0 4px 20px rgba(0,0,0,0.8)' }}>
+            <h2 className="text-4xl md:text-5xl font-[family-name:var(--font-oswald)] font-light tracking-wide text-white mb-4">
+              THE LUGE EXPERIENCE
+            </h2>
+            <p className="text-lg text-white/80 max-w-2xl mx-auto">
+              Phuket's most exciting gravity ride
+            </p>
+          </div>
 
           <motion.div
             variants={staggerContainer}
@@ -187,7 +197,7 @@ export default function LugePage() {
               <motion.div
                 key={index}
                 variants={staggerItem}
-                className="p-6 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-green-500/30 transition-all duration-300 text-center group"
+                className="p-6 rounded-2xl bg-gradient-to-br from-[#0d1259]/80 to-[#2a1a5c]/80 backdrop-blur-sm border border-white/10 hover:border-green-500/30 transition-all duration-300 text-center group"
               >
                 <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-green-500/10 flex items-center justify-center group-hover:bg-green-500/20 transition-colors">
                   <item.icon className="w-10 h-10 text-green-400" />
@@ -204,7 +214,19 @@ export default function LugePage() {
 
       {/* Section 3: Part of Hanuman World + Combo Packages */}
       <Section id="combo" className="relative overflow-hidden" style={{ backgroundColor: '#0a0f3d' }}>
-        <Container>
+        {/* Rotating circles */}
+        <img 
+          src="/images/circlebig.png"
+          alt=""
+          className="absolute w-[600px] h-[600px] opacity-10 pointer-events-none object-contain top-[-15%] left-[-10%] animate-spin-slow"
+        />
+        <img 
+          src="/images/circlebig.png"
+          alt=""
+          className="absolute w-[600px] h-[600px] opacity-10 pointer-events-none object-contain bottom-[-15%] right-[-10%] animate-spin-slow-reverse"
+        />
+        
+        <Container className="relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -311,21 +333,17 @@ export default function LugePage() {
 
       {/* Section 5: CTA */}
       <Section 
-        className="relative overflow-hidden py-20" 
+        className="relative overflow-hidden" 
         style={{ 
-          background: 'linear-gradient(135deg, #0a2f1f 0%, #0d1259 50%, #0a2f1f 100%)'
+          backgroundImage: 'url(/images/lugebgg.JPG)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          paddingTop: '230px',
+          paddingBottom: '230px',
         }}
       >
-        <img 
-          src="/images/circlebig.png"
-          alt=""
-          className="absolute w-[600px] h-[600px] opacity-10 pointer-events-none object-contain top-[-20%] left-[-10%] animate-spin-slow"
-        />
-        <img 
-          src="/images/circlebig.png"
-          alt=""
-          className="absolute w-[500px] h-[500px] opacity-10 pointer-events-none object-contain bottom-[-20%] right-[-10%] animate-spin-slow-reverse"
-        />
+        {/* Dark overlay */}
+        <div className="absolute inset-0 bg-[#0d1259]/70" />
         
         <Container className="relative z-10">
           <motion.div

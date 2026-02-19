@@ -67,6 +67,28 @@ export function Header() {
                 {item.name}
               </Link>
             ))}
+            <Link href="/booking">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="relative px-6 py-2.5 rounded-lg font-[family-name:var(--font-oswald)] font-normal tracking-wide text-[20px] text-white uppercase overflow-hidden group"
+                style={{
+                  background: 'linear-gradient(135deg, #f97316, #ea580c, #f97316)',
+                  backgroundSize: '200% 200%',
+                  animation: 'gradient-shift 3s ease infinite',
+                  boxShadow: '0 0 20px rgba(249, 115, 22, 0.5), 0 0 40px rgba(249, 115, 22, 0.3)',
+                }}
+              >
+                <span className="relative z-10">BOOK NOW</span>
+                <div 
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{
+                    background: 'linear-gradient(135deg, #fb923c, #f97316, #ea580c)',
+                    boxShadow: '0 0 30px rgba(249, 115, 22, 0.7), 0 0 60px rgba(249, 115, 22, 0.5)',
+                  }}
+                />
+              </motion.button>
+            </Link>
           </nav>
 
           <button
@@ -98,6 +120,17 @@ export function Header() {
                   {item.name}
                 </Link>
               ))}
+              <Link
+                href="/booking"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block mt-4 px-6 py-3 rounded-lg font-[family-name:var(--font-oswald)] font-normal tracking-wide text-[18px] text-white text-center uppercase"
+                style={{
+                  background: 'linear-gradient(135deg, #f97316, #ea580c)',
+                  boxShadow: '0 0 20px rgba(249, 115, 22, 0.5)',
+                }}
+              >
+                BOOK NOW
+              </Link>
             </nav>
           </motion.div>
         )}

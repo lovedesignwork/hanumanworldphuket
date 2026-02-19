@@ -32,9 +32,29 @@ export default function ContactPage() {
   };
 
   return (
-    <main className="min-h-screen pt-20">
-      <Section className="bg-gradient-to-b from-primary-dark to-background-dark">
-        <Container>
+    <main className="min-h-screen pt-20 bg-[#1a237e]">
+      <Section 
+        className="relative overflow-hidden min-h-[calc(100vh-80px)]"
+        style={{ background: 'linear-gradient(135deg, #2a1a5c 0%, #0d1259 30%, #0d4a4a 60%, #1a237e 100%)' }}
+      >
+        {/* Big rotating circles */}
+        <img 
+          src="/images/circlebig.png"
+          alt=""
+          className="absolute w-[800px] h-[800px] opacity-10 pointer-events-none object-contain top-[-15%] right-[-10%] animate-spin-slow"
+        />
+        <img 
+          src="/images/circlebig.png"
+          alt=""
+          className="absolute w-[700px] h-[700px] opacity-10 pointer-events-none object-contain top-[30%] left-[-15%] animate-spin-slow-reverse"
+        />
+        <img 
+          src="/images/circlebig.png"
+          alt=""
+          className="absolute w-[600px] h-[600px] opacity-5 pointer-events-none object-contain bottom-[-15%] right-[20%] animate-spin-slow"
+        />
+        
+        <Container className="relative z-10">
           <SectionHeader
             title="Contact Us"
             subtitle="Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible."
@@ -106,14 +126,21 @@ export default function ContactPage() {
                           value={formData.subject}
                           onChange={handleChange}
                           required
-                          className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-accent"
+                          className="w-full px-4 py-3 bg-[#1a237e] border border-white/10 rounded-xl text-white focus:outline-none focus:border-accent appearance-none cursor-pointer"
+                          style={{
+                            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                            backgroundRepeat: 'no-repeat',
+                            backgroundPosition: 'right 12px center',
+                            backgroundSize: '20px',
+                            paddingRight: '48px',
+                          }}
                         >
-                          <option value="">Select a subject</option>
-                          <option value="booking">Booking Inquiry</option>
-                          <option value="packages">Package Information</option>
-                          <option value="group">Group Booking</option>
-                          <option value="feedback">Feedback</option>
-                          <option value="other">Other</option>
+                          <option value="" className="bg-[#1a237e] text-white">Select a subject</option>
+                          <option value="booking" className="bg-[#1a237e] text-white">Booking Inquiry</option>
+                          <option value="packages" className="bg-[#1a237e] text-white">Package Information</option>
+                          <option value="group" className="bg-[#1a237e] text-white">Group Booking</option>
+                          <option value="feedback" className="bg-[#1a237e] text-white">Feedback</option>
+                          <option value="other" className="bg-[#1a237e] text-white">Other</option>
                         </select>
                       </div>
                     </div>
@@ -131,9 +158,19 @@ export default function ContactPage() {
                       />
                     </div>
                     
-                    <Button type="submit" size="lg" className="w-full" isLoading={isSubmitting}>
-                      Send Message
-                    </Button>
+                    <button 
+                      type="submit" 
+                      disabled={isSubmitting}
+                      className="w-full py-4 rounded-xl font-[family-name:var(--font-oswald)] font-normal tracking-wide text-xl text-white uppercase transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+                      style={{
+                        background: 'linear-gradient(135deg, #f97316, #ea580c, #f97316)',
+                        backgroundSize: '200% 200%',
+                        animation: 'gradient-shift 3s ease infinite',
+                        boxShadow: '0 0 20px rgba(249, 115, 22, 0.5), 0 4px 15px rgba(249, 115, 22, 0.3)',
+                      }}
+                    >
+                      {isSubmitting ? 'Sending...' : 'Send Message'}
+                    </button>
                   </form>
                 )}
               </Card>

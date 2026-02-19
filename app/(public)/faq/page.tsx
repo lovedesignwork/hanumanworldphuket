@@ -23,8 +23,28 @@ export default function FAQPage() {
 
   return (
     <main className="min-h-screen pt-20">
-      <Section className="bg-gradient-to-b from-primary-dark to-background-dark">
-        <Container size="lg">
+      <Section 
+        className="relative overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, #0d1259 0%, #1a3a2a 25%, #0d4a4a 50%, #2a1a5c 75%, #0d1259 100%)' }}
+      >
+        {/* Big rotating circles */}
+        <img 
+          src="/images/circlebig.png"
+          alt=""
+          className="absolute w-[800px] h-[800px] opacity-10 pointer-events-none object-contain top-[-10%] right-[-15%] animate-spin-slow"
+        />
+        <img 
+          src="/images/circlebig.png"
+          alt=""
+          className="absolute w-[700px] h-[700px] opacity-10 pointer-events-none object-contain top-[40%] left-[-15%] animate-spin-slow-reverse"
+        />
+        <img 
+          src="/images/circlebig.png"
+          alt=""
+          className="absolute w-[600px] h-[600px] opacity-5 pointer-events-none object-contain bottom-[-10%] right-[20%] animate-spin-slow"
+        />
+        
+        <Container size="lg" className="relative z-10">
           <SectionHeader
             title="Frequently Asked Questions"
             subtitle="Find answers to common questions about your adventure at Hanuman World"

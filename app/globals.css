@@ -297,6 +297,18 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 .animated-btn-turquoise-mint {
   background: linear-gradient(135deg, #0d1259, #0d4f4f, #0d1259, #1a237e, #0d1259);
   background-size: 400% 400%;
