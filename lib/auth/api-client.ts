@@ -1,9 +1,34 @@
-import { supabaseAuth } from '@/lib/supabase/auth';
+// Get session directly from localStorage to bypass SDK hang issues
+function getSessionFromStorage(): { access_token: string; refresh_token: string; user: unknown } | null {
+  if (typeof window === 'undefined') return null;
+  
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!supabaseUrl) return null;
+  
+  // Extract project ID from URL (e.g., https://abc123.supabase.co -> abc123)
+  const projectId = supabaseUrl.split('//')[1]?.split('.')[0];
+  if (!projectId) return null;
+  
+  const storageKey = `sb-${projectId}-auth-token`;
+  const stored = localStorage.getItem(storageKey);
+  
+  if (!stored) return null;
+  
+  try {
+    const session = JSON.parse(stored);
+    if (session.access_token) {
+      return session;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 // Wait for session to be available (with retries for initial load)
 async function waitForSession(maxRetries = 5, delayMs = 200): Promise<string> {
   for (let i = 0; i < maxRetries; i++) {
-    const { data: { session } } = await supabaseAuth.auth.getSession();
+    const session = getSessionFromStorage();
     if (session?.access_token) {
       return session.access_token;
     }

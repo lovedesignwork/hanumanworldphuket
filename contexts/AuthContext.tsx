@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User } from '@supabase/supabase-js';
-import { supabaseAuth, AdminUser, signOut as authSignOut } from '@/lib/supabase/auth';
+import { AdminUser, signOut as authSignOut } from '@/lib/supabase/auth';
 import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
@@ -14,6 +14,32 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Get session directly from localStorage to bypass SDK hang issues
+function getSessionFromStorage(): { access_token: string; refresh_token: string; user: User } | null {
+  if (typeof window === 'undefined') return null;
+  
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!supabaseUrl) return null;
+  
+  const projectId = supabaseUrl.split('//')[1]?.split('.')[0];
+  if (!projectId) return null;
+  
+  const storageKey = `sb-${projectId}-auth-token`;
+  const stored = localStorage.getItem(storageKey);
+  
+  if (!stored) return null;
+  
+  try {
+    const session = JSON.parse(stored);
+    if (session.access_token && session.user) {
+      return session;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -36,11 +62,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshAuth = async () => {
     try {
-      const { data: { session } } = await supabaseAuth.auth.getSession();
+      // Read session directly from localStorage to bypass SDK hang issues
+      const session = getSessionFromStorage();
       const authUser = session?.user ?? null;
       setUser(authUser);
 
-      if (authUser && session) {
+      if (authUser && session?.access_token) {
         const response = await fetch(`/api/auth/check-admin?email=${encodeURIComponent(authUser.email || '')}`, {
           headers: {
             'Authorization': `Bearer ${session.access_token}`,
@@ -81,25 +108,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    // Initial auth check
     refreshAuth();
-
-    const { data: { subscription } } = supabaseAuth.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        setUser(session?.user ?? null);
-        await refreshAuth();
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null);
-        setAdminUser(null);
+    
+    // Listen for storage changes (for cross-tab sync)
+    const handleStorageChange = (e: StorageEvent) => {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      if (!supabaseUrl) return;
+      const projectId = supabaseUrl.split('//')[1]?.split('.')[0];
+      const storageKey = `sb-${projectId}-auth-token`;
+      
+      if (e.key === storageKey || e.key === 'adminUser') {
+        refreshAuth();
       }
-    });
-
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
     return () => {
-      subscription.unsubscribe();
+      window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
 
   const signOut = async () => {
-    await authSignOut();
+    // Clear localStorage session
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (supabaseUrl) {
+      const projectId = supabaseUrl.split('//')[1]?.split('.')[0];
+      if (projectId) {
+        localStorage.removeItem(`sb-${projectId}-auth-token`);
+      }
+    }
+    
+    // Also try the SDK signOut (may hang, but we don't wait for it)
+    authSignOut().catch(() => {});
+    
     setUser(null);
     setAdminUser(null);
     localStorage.removeItem('adminUser');
