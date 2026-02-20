@@ -31,8 +31,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
     }
 
-    const customer = booking.booking_customers;
-    const transport = booking.booking_transport;
+    // Handle potential array returns from Supabase relations
+    const rawCustomer = booking.booking_customers;
+    const customer = Array.isArray(rawCustomer) ? rawCustomer[0] : rawCustomer;
+    const rawTransport = booking.booking_transport;
+    const transport = Array.isArray(rawTransport) ? rawTransport[0] : rawTransport;
 
     // Sync to OneBooking
     const syncResult = await pushBookingToOneBooking('booking.created', {

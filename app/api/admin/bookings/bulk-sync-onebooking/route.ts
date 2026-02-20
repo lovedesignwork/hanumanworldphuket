@@ -23,8 +23,14 @@ interface BookingAddon {
 }
 
 async function syncBooking(booking: Record<string, unknown>): Promise<SyncDetail> {
-  const customer = booking.booking_customers as Record<string, unknown> | null;
-  const transport = booking.booking_transport as Record<string, unknown> | null;
+  // Handle booking_customers - could be array or object depending on Supabase relation
+  const rawCustomer = booking.booking_customers;
+  const customer = Array.isArray(rawCustomer) ? rawCustomer[0] as Record<string, unknown> | undefined : rawCustomer as Record<string, unknown> | null;
+  
+  // Handle booking_transport - could be array or object
+  const rawTransport = booking.booking_transport;
+  const transport = Array.isArray(rawTransport) ? rawTransport[0] as Record<string, unknown> | undefined : rawTransport as Record<string, unknown> | null;
+  
   const packages = booking.packages as Record<string, unknown> | null;
   const rawAddons = booking.booking_addons as Record<string, unknown>[] || [];
   
