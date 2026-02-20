@@ -90,7 +90,6 @@ function CheckoutContent() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
-  const [confirmEmail, setConfirmEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [countryCode, setCountryCode] = useState('+66');
   const [specialRequests, setSpecialRequests] = useState('');
@@ -172,11 +171,11 @@ function CheckoutContent() {
 
   // Form validation (customer details only - card handled by Stripe Elements)
   const isCustomerFormValid = useMemo(() => {
-    const emailValid = Boolean(email && email.includes('@') && email === confirmEmail);
+    const emailValid = Boolean(email && email.includes('@'));
     const phoneValid = phone.length >= 8;
     const nameValid = Boolean(firstName.trim() && lastName.trim());
     return emailValid && phoneValid && nameValid;
-  }, [email, confirmEmail, phone, firstName, lastName]);
+  }, [email, phone, firstName, lastName]);
 
   // Validate promo code
   const validatePromoCode = async () => {
@@ -449,26 +448,6 @@ function CheckoutContent() {
                           required
                         />
                       </div>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1.5">Confirm Email *</label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input
-                          type="email"
-                          value={confirmEmail}
-                          onChange={(e) => setConfirmEmail(e.target.value)}
-                          placeholder="john@example.com"
-                          className={`w-full h-11 pl-10 pr-4 bg-slate-50 border rounded-xl text-slate-800 text-sm focus:outline-none focus:border-[#1a237e] ${
-                            confirmEmail && confirmEmail !== email ? 'border-red-300 bg-red-50' : 'border-slate-200'
-                          }`}
-                          required
-                        />
-                      </div>
-                      {confirmEmail && confirmEmail !== email && (
-                        <p className="text-red-500 text-xs mt-1">Emails do not match</p>
-                      )}
                     </div>
                     
                     <div>
