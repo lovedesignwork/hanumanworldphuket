@@ -24,6 +24,8 @@ import {
   Tag
 } from 'lucide-react';
 import { adminGet, adminPut, adminFetch } from '@/lib/auth/api-client';
+import { useAuth } from '@/contexts/AuthContext';
+
 interface Booking {
   id: string;
   booking_ref: string;
@@ -56,6 +58,7 @@ type SortDirection = 'asc' | 'desc';
 const STATUS_OPTIONS = ['all', 'pending', 'confirmed', 'cancelled', 'completed', 'refunded'];
 
 export default function BookingsPage() {
+  const { loading: authLoading } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -74,8 +77,11 @@ export default function BookingsPage() {
   const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
-    fetchBookings();
-  }, [page, pageSize, statusFilter, dateFilterType, dateFrom, dateTo, sortField, sortDirection]);
+    // Wait for auth to be ready before fetching
+    if (!authLoading) {
+      fetchBookings();
+    }
+  }, [authLoading, page, pageSize, statusFilter, dateFilterType, dateFrom, dateTo, sortField, sortDirection]);
 
   const fetchBookings = async () => {
     setLoading(true);

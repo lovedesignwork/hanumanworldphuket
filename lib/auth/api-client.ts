@@ -1,15 +1,26 @@
 import { supabaseAuth } from '@/lib/supabase/auth';
 
-export async function getAuthHeaders(): Promise<HeadersInit> {
-  const { data: { session } } = await supabaseAuth.auth.getSession();
-  
-  if (!session?.access_token) {
-    throw new Error('No active session');
+// Wait for session to be available (with retries for initial load)
+async function waitForSession(maxRetries = 5, delayMs = 200): Promise<string> {
+  for (let i = 0; i < maxRetries; i++) {
+    const { data: { session } } = await supabaseAuth.auth.getSession();
+    if (session?.access_token) {
+      return session.access_token;
+    }
+    // Wait before retry
+    if (i < maxRetries - 1) {
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+    }
   }
+  throw new Error('No active session');
+}
+
+export async function getAuthHeaders(): Promise<HeadersInit> {
+  const accessToken = await waitForSession();
 
   return {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${session.access_token}`,
+    'Authorization': `Bearer ${accessToken}`,
   };
 }
 
