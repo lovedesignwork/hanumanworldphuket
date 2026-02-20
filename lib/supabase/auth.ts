@@ -44,19 +44,22 @@ export async function signIn(email: string, password: string) {
     throw new Error(data.error_description || data.error || 'Sign in failed');
   }
   
-  // Manually set the session in the Supabase client
-  console.log('[signIn] Setting session in Supabase client...');
-  const { error: sessionError } = await supabaseAuth.auth.setSession({
+  // Store session in localStorage for the Supabase client to pick up
+  // This bypasses the SDK's setSession which also hangs
+  const storageKey = `sb-${supabaseUrl.split('//')[1].split('.')[0]}-auth-token`;
+  console.log('[signIn] Storing session in localStorage key:', storageKey);
+  
+  const sessionData = {
     access_token: data.access_token,
     refresh_token: data.refresh_token,
-  });
+    expires_in: data.expires_in,
+    expires_at: Math.floor(Date.now() / 1000) + data.expires_in,
+    token_type: 'bearer',
+    user: data.user,
+  };
   
-  if (sessionError) {
-    console.error('[signIn] Failed to set session:', sessionError.message);
-    throw sessionError;
-  }
-  
-  console.log('[signIn] Session set successfully');
+  localStorage.setItem(storageKey, JSON.stringify(sessionData));
+  console.log('[signIn] Session stored in localStorage');
   
   return {
     user: data.user,
