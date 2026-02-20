@@ -172,9 +172,9 @@ function CheckoutContent() {
 
   // Form validation (customer details only - card handled by Stripe Elements)
   const isCustomerFormValid = useMemo(() => {
-    const emailValid = email && email.includes('@') && email === confirmEmail;
+    const emailValid = Boolean(email && email.includes('@') && email === confirmEmail);
     const phoneValid = phone.length >= 8;
-    const nameValid = firstName.trim() && lastName.trim();
+    const nameValid = Boolean(firstName.trim() && lastName.trim());
     return emailValid && phoneValid && nameValid;
   }, [email, confirmEmail, phone, firstName, lastName]);
 

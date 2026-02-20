@@ -73,12 +73,17 @@ export async function GET(request: NextRequest) {
       const customer = booking.booking_customers?.[0];
       const transport = booking.booking_transport?.[0];
       const addons = booking.booking_addons
-        ?.map((a: { quantity: number; promo_addons?: { name: string } }) => 
-          `${a.promo_addons?.name || 'Unknown'} x${a.quantity}`
-        )
+        ?.map((a) => {
+          const promoAddons = a.promo_addons as { name: string }[] | { name: string } | null;
+          const addonName = Array.isArray(promoAddons) 
+            ? promoAddons[0]?.name 
+            : promoAddons?.name;
+          return `${addonName || 'Unknown'} x${a.quantity}`;
+        })
         .join('; ') || '';
 
-      const packageData = booking.packages as { name: string } | null;
+      const packages = booking.packages as { name: string }[] | { name: string } | null;
+      const packageName = Array.isArray(packages) ? packages[0]?.name : packages?.name;
       const subtotal = (booking.total_amount || 0) + (booking.discount_amount || 0);
 
       return [
@@ -87,7 +92,7 @@ export async function GET(request: NextRequest) {
         booking.activity_date,
         booking.time_slot,
         booking.guest_count,
-        packageData?.name || '',
+        packageName || '',
         customer ? `${customer.first_name} ${customer.last_name}` : '',
         customer?.email || '',
         customer?.phone || '',

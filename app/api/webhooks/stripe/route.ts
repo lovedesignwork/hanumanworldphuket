@@ -4,6 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase/server';
 import Stripe from 'stripe';
 import { sendBookingConfirmationEmail } from '@/lib/email/send-booking-confirmation';
 import { sendBookingNotificationEmail } from '@/lib/email/send-booking-notification';
+import { pushBookingToOneBooking } from '@/lib/onebooking/sync';
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
@@ -160,6 +161,46 @@ export async function POST(request: NextRequest) {
             console.log(`Admin notification email sent for ${booking.booking_ref}`);
           } catch (notifError) {
             console.error('Failed to send admin notification:', notifError);
+          }
+
+          // Sync booking to OneBooking Central Dashboard
+          try {
+            const syncResult = await pushBookingToOneBooking('booking.created', {
+              id: booking.id,
+              booking_ref: booking.booking_ref,
+              activity_date: booking.activity_date,
+              time_slot: booking.time_slot,
+              guest_count: booking.guest_count,
+              total_amount: booking.total_amount,
+              discount_amount: booking.discount_amount || 0,
+              currency: 'THB',
+              status: 'confirmed',
+              special_requests: booking.special_requests,
+              stripe_payment_intent_id: paymentIntent.id,
+              created_at: booking.created_at,
+              packages: booking.packages,
+              customers: customer ? {
+                name: `${customer.first_name} ${customer.last_name}`,
+                email: customer.email,
+                phone: customer.phone,
+                country_code: customer.country_code,
+              } : null,
+              transport_type: transport?.transport_type,
+              hotel_name: transport?.hotel_name,
+              room_number: transport?.room_number,
+              non_players: transport?.non_players || 0,
+              private_passengers: transport?.private_passengers || 0,
+              transport_cost: transport?.price || 0,
+              booking_addons: booking.booking_addons,
+            });
+
+            if (syncResult.success) {
+              console.log(`[OneBooking] Synced ${booking.booking_ref} to central dashboard`);
+            } else {
+              console.warn(`[OneBooking] Sync skipped/failed for ${booking.booking_ref}:`, syncResult.error);
+            }
+          } catch (syncError) {
+            console.error(`[OneBooking] Sync error for ${booking.booking_ref}:`, syncError);
           }
         }
       }
