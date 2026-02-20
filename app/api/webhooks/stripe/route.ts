@@ -163,33 +163,37 @@ export async function POST(request: NextRequest) {
           });
 
           // Sync booking to OneBooking Central Dashboard
+          // Ensure numeric values are proper integers (Supabase returns numeric as strings)
           const syncPromise = pushBookingToOneBooking('booking.created', {
             id: booking.id,
             booking_ref: booking.booking_ref,
             activity_date: booking.activity_date,
             time_slot: booking.time_slot,
-            guest_count: booking.guest_count,
-            total_amount: booking.total_amount,
-            discount_amount: booking.discount_amount || 0,
+            guest_count: Number(booking.guest_count) || 0,
+            total_amount: Number(booking.total_amount) || 0,
+            discount_amount: Number(booking.discount_amount) || 0,
             currency: 'THB',
             status: 'confirmed',
-            special_requests: booking.special_requests,
+            special_requests: booking.special_requests || null,
             stripe_payment_intent_id: paymentIntent.id,
             created_at: booking.created_at,
-            packages: booking.packages,
+            packages: booking.packages ? {
+              name: booking.packages.name,
+              price: Number(booking.packages.price) || 0,
+            } : null,
             customers: customer ? {
               name: `${customer.first_name} ${customer.last_name}`,
               email: customer.email,
-              phone: customer.phone,
-              country_code: customer.country_code,
+              phone: customer.phone || null,
+              country_code: customer.country_code || null,
             } : null,
-            transport_type: transport?.transport_type,
-            hotel_name: transport?.hotel_name,
-            room_number: transport?.room_number,
-            non_players: transport?.non_players || 0,
-            private_passengers: transport?.private_passengers || 0,
-            transport_cost: transport?.transport_cost || 0,
-            booking_addons: booking.booking_addons,
+            transport_type: transport?.transport_type || null,
+            hotel_name: transport?.hotel_name || null,
+            room_number: transport?.room_number || null,
+            non_players: Number(transport?.non_players) || 0,
+            private_passengers: Number(transport?.private_passengers) || 0,
+            transport_cost: Number(transport?.transport_cost) || 0,
+            booking_addons: booking.booking_addons || [],
           }).then((syncResult) => {
             if (syncResult.success) {
               console.log(`[OneBooking] Synced ${booking.booking_ref} to central dashboard`);
