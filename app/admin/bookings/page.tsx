@@ -21,7 +21,8 @@ import {
   Cloud,
   RefreshCw,
   ExternalLink,
-  Info
+  Info,
+  X
 } from 'lucide-react';
 import { adminGet, adminFetch } from '@/lib/auth/api-client';
 import { useAuth } from '@/contexts/AuthContext';
