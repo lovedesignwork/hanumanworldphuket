@@ -106,6 +106,7 @@ export async function syncBookingToOneBooking(
 
   const syncUrl = `${config.apiUrl}/api/bookings/sync`;
   console.log('[OneBooking Sync] Sending to:', syncUrl);
+  console.log('[OneBooking Sync] Payload:', JSON.stringify(payload, null, 2));
 
   const response = await fetch(syncUrl, {
     method: 'POST',
@@ -116,7 +117,14 @@ export async function syncBookingToOneBooking(
     body: JSON.stringify(payload),
   });
 
-  const data = await response.json();
+  let data;
+  const responseText = await response.text();
+  try {
+    data = JSON.parse(responseText);
+  } catch {
+    console.error('[OneBooking Sync] Non-JSON response:', responseText);
+    throw new Error(`API returned non-JSON: ${responseText.substring(0, 200)}`);
+  }
 
   if (!response.ok) {
     console.error('[OneBooking Sync] API error:', {
@@ -124,7 +132,7 @@ export async function syncBookingToOneBooking(
       statusText: response.statusText,
       data,
     });
-    throw new Error(data.error || 'Sync failed');
+    throw new Error(data.error || data.message || 'Sync failed');
   }
 
   return data as SyncResponse;
