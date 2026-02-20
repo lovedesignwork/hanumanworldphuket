@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { CardNumberElement, CardExpiryElement, CardCvcElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Lock, Loader2, AlertCircle, CreditCard } from 'lucide-react';
 import { LegalModal } from '@/components/ui/LegalModal';
 
@@ -23,9 +23,13 @@ export default function EmbeddedCardForm({
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [agreeTerms, setAgreeTerms] = useState(false);
-  const [cardComplete, setCardComplete] = useState(false);
+  const [cardNumberComplete, setCardNumberComplete] = useState(false);
+  const [cardExpiryComplete, setCardExpiryComplete] = useState(false);
+  const [cardCvcComplete, setCardCvcComplete] = useState(false);
   const [termsModalOpen, setTermsModalOpen] = useState(false);
   const [privacyModalOpen, setPrivacyModalOpen] = useState(false);
+
+  const cardComplete = cardNumberComplete && cardExpiryComplete && cardCvcComplete;
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('th-TH', {
@@ -65,14 +69,14 @@ export default function EmbeddedCardForm({
 
       const { clientSecret, bookingRef } = result;
 
-      const cardElement = elements.getElement(CardElement);
-      if (!cardElement) {
+      const cardNumberElement = elements.getElement(CardNumberElement);
+      if (!cardNumberElement) {
         throw new Error('Card element not found');
       }
 
       const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
-          card: cardElement,
+          card: cardNumberElement,
         },
       });
 
@@ -91,7 +95,7 @@ export default function EmbeddedCardForm({
     }
   };
 
-  const cardElementOptions = {
+  const elementStyle = {
     style: {
       base: {
         fontSize: '16px',
@@ -107,7 +111,6 @@ export default function EmbeddedCardForm({
         iconColor: '#ef4444',
       },
     },
-    hidePostalCode: true,
   };
 
   const canSubmit = stripe && agreeTerms && isCustomerFormValid && cardComplete && !isProcessing && !isCreatingBooking;
@@ -149,19 +152,58 @@ export default function EmbeddedCardForm({
         <span className="text-sm font-medium text-slate-800">Debit / Credit Card</span>
       </div>
 
-      {/* Stripe Card Element */}
-      <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
-        <CardElement
-          options={cardElementOptions}
-          onChange={(e) => {
-            setCardComplete(e.complete);
-            if (e.error) {
-              setErrorMessage(e.error.message);
-            } else {
-              setErrorMessage(null);
-            }
-          }}
-        />
+      {/* Card Number */}
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-2">Card Number</label>
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
+          <CardNumberElement
+            options={elementStyle}
+            onChange={(e) => {
+              setCardNumberComplete(e.complete);
+              if (e.error) {
+                setErrorMessage(e.error.message);
+              } else if (!cardExpiryComplete || !cardCvcComplete) {
+                setErrorMessage(null);
+              }
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Expiry Date and CVC */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-2">Expiry Date</label>
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
+            <CardExpiryElement
+              options={elementStyle}
+              onChange={(e) => {
+                setCardExpiryComplete(e.complete);
+                if (e.error) {
+                  setErrorMessage(e.error.message);
+                } else if (cardNumberComplete && cardCvcComplete) {
+                  setErrorMessage(null);
+                }
+              }}
+            />
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-2">CVV / CVC</label>
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
+            <CardCvcElement
+              options={elementStyle}
+              onChange={(e) => {
+                setCardCvcComplete(e.complete);
+                if (e.error) {
+                  setErrorMessage(e.error.message);
+                } else if (cardNumberComplete && cardExpiryComplete) {
+                  setErrorMessage(null);
+                }
+              }}
+            />
+          </div>
+        </div>
       </div>
 
       {errorMessage && (
@@ -169,12 +211,6 @@ export default function EmbeddedCardForm({
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
           {errorMessage}
         </div>
-      )}
-
-      {!isCustomerFormValid && (
-        <p className="text-xs text-center text-amber-600 bg-amber-50 p-2 rounded-lg">
-          Complete all customer details above to enable payment
-        </p>
       )}
 
       <button

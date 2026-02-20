@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase/client';
+import { supabaseAdmin } from '@/lib/supabase/server';
 
 export async function GET(
   request: NextRequest,
@@ -8,7 +8,7 @@ export async function GET(
   try {
     const { type } = await params;
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('legal_content')
       .select('title, content, updated_at')
       .eq('type', type)
@@ -16,6 +16,7 @@ export async function GET(
       .single();
 
     if (error || !data) {
+      console.error('Legal content fetch error:', error);
       return NextResponse.json({ error: 'Content not found' }, { status: 404 });
     }
 
