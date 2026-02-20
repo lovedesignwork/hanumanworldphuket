@@ -18,10 +18,24 @@ export interface AdminUser {
 
 export async function signIn(email: string, password: string) {
   console.log('[signIn] Starting signInWithPassword for:', email);
-  const { data, error } = await supabaseAuth.auth.signInWithPassword({
+  
+  // Use a promise race to detect if signInWithPassword hangs
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    setTimeout(() => {
+      console.error('[signIn] TIMEOUT - signInWithPassword took more than 15 seconds');
+      reject(new Error('Sign in timed out. Please try again.'));
+    }, 15000);
+  });
+  
+  const authPromise = supabaseAuth.auth.signInWithPassword({
     email,
     password,
   });
+  
+  console.log('[signIn] Waiting for signInWithPassword...');
+  
+  const { data, error } = await Promise.race([authPromise, timeoutPromise]);
+  
   console.log('[signIn] signInWithPassword completed:', { 
     hasData: !!data, 
     hasSession: !!data?.session,

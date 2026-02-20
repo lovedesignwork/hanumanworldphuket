@@ -3,6 +3,13 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
+// Debug logging for env vars (will be visible in browser console)
+if (typeof window !== 'undefined') {
+  console.log('[Supabase] URL:', supabaseUrl);
+  console.log('[Supabase] Anon key (first 50 chars):', supabaseAnonKey?.substring(0, 50));
+  console.log('[Supabase] Anon key length:', supabaseAnonKey?.length);
+}
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export type Database = {
