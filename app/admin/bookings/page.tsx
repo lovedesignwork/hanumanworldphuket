@@ -258,7 +258,7 @@ export default function BookingsPage() {
   };
 
   const handleBulkSyncToOneBooking = async () => {
-    if (!confirm('This will sync ALL confirmed/completed bookings to OneBooking Dashboard. Continue?')) {
+    if (!confirm('This will sync up to 20 bookings to OneBooking Dashboard. You may need to click multiple times to sync all bookings. Continue?')) {
       return;
     }
     
@@ -274,9 +274,10 @@ export default function BookingsPage() {
       const result = await response.json();
       
       if (result.success) {
+        const hasMore = result.results?.total === 20;
         setSyncResult({ 
           type: 'success', 
-          message: result.message 
+          message: `${result.message}${hasMore ? ' (click again to sync more)' : ''}` 
         });
       } else {
         setSyncResult({ 

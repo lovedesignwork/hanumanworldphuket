@@ -3,7 +3,85 @@ import { supabaseAdmin } from '@/lib/supabase/server';
 import { requireSuperAdmin, isAuthError } from '@/lib/auth/api-auth';
 import { pushBookingToOneBooking } from '@/lib/onebooking/sync';
 
-export const maxDuration = 300; // 5 minutes timeout for bulk sync
+export const maxDuration = 60; // 60 seconds - works on Pro plan, hobby plan has 10s limit
+
+const CONCURRENCY_LIMIT = 5; // Process 5 bookings in parallel
+
+interface SyncDetail {
+  booking_ref: string;
+  status: string;
+  error?: string;
+}
+
+async function syncBooking(booking: Record<string, unknown>): Promise<SyncDetail> {
+  const customer = booking.booking_customers as Record<string, unknown> | null;
+  const transport = booking.booking_transport as Record<string, unknown> | null;
+  const packages = booking.packages as Record<string, unknown> | null;
+  const bookingAddons = booking.booking_addons as Record<string, unknown>[] || [];
+
+  try {
+    const syncResult = await pushBookingToOneBooking('booking.created', {
+      id: booking.id as string,
+      booking_ref: booking.booking_ref as string,
+      activity_date: booking.activity_date as string,
+      time_slot: booking.time_slot as string,
+      guest_count: Number(booking.guest_count) || 0,
+      total_amount: Number(booking.total_amount) || 0,
+      discount_amount: Number(booking.discount_amount) || 0,
+      currency: 'THB',
+      status: booking.status as string,
+      special_requests: (booking.special_requests as string) || null,
+      stripe_payment_intent_id: booking.stripe_payment_intent_id as string,
+      created_at: booking.created_at as string,
+      packages: packages ? {
+        name: packages.name as string,
+        price: Number(packages.price) || 0,
+      } : null,
+      customers: customer ? {
+        name: `${customer.first_name} ${customer.last_name}`,
+        email: customer.email as string,
+        phone: (customer.phone as string) || null,
+        country_code: (customer.country_code as string) || null,
+      } : null,
+      transport_type: (transport?.transport_type as string) || null,
+      hotel_name: (transport?.hotel_name as string) || null,
+      room_number: (transport?.room_number as string) || null,
+      non_players: Number(transport?.non_players) || 0,
+      private_passengers: Number(transport?.private_passengers) || 0,
+      transport_cost: Number(transport?.transport_cost) || 0,
+      booking_addons: bookingAddons,
+    });
+
+    if (syncResult.success) {
+      return { booking_ref: booking.booking_ref as string, status: 'synced' };
+    } else if (syncResult.code === 'DUPLICATE_BOOKING') {
+      return { booking_ref: booking.booking_ref as string, status: 'skipped', error: 'Already exists' };
+    } else {
+      return { booking_ref: booking.booking_ref as string, status: 'failed', error: syncResult.error };
+    }
+  } catch (error) {
+    return { 
+      booking_ref: booking.booking_ref as string, 
+      status: 'failed', 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    };
+  }
+}
+
+async function processInBatches(
+  bookings: Record<string, unknown>[],
+  batchSize: number
+): Promise<SyncDetail[]> {
+  const results: SyncDetail[] = [];
+  
+  for (let i = 0; i < bookings.length; i += batchSize) {
+    const batch = bookings.slice(i, i + batchSize);
+    const batchResults = await Promise.all(batch.map(syncBooking));
+    results.push(...batchResults);
+  }
+  
+  return results;
+}
 
 export async function POST(request: NextRequest) {
   const auth = await requireSuperAdmin(request);
@@ -15,7 +93,6 @@ export async function POST(request: NextRequest) {
     let bookingsToSync;
     
     if (syncAll) {
-      // Fetch all confirmed/completed bookings
       const { data, error } = await supabaseAdmin
         .from('bookings')
         .select(`
@@ -26,12 +103,13 @@ export async function POST(request: NextRequest) {
           booking_transport (*)
         `)
         .in('status', ['confirmed', 'completed'])
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(20); // Limit to 20 bookings per sync to avoid timeout
 
       if (error) throw error;
       bookingsToSync = data || [];
     } else if (bookingIds && Array.isArray(bookingIds)) {
-      // Fetch specific bookings
+      const limitedIds = bookingIds.slice(0, 20); // Limit to 20 bookings
       const { data, error } = await supabaseAdmin
         .from('bookings')
         .select(`
@@ -41,7 +119,7 @@ export async function POST(request: NextRequest) {
           booking_addons (*, promo_addons (*)),
           booking_transport (*)
         `)
-        .in('id', bookingIds);
+        .in('id', limitedIds);
 
       if (error) throw error;
       bookingsToSync = data || [];
@@ -49,70 +127,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Provide bookingIds array or syncAll: true' }, { status: 400 });
     }
 
+    // Process bookings in parallel batches
+    const details = await processInBatches(bookingsToSync, CONCURRENCY_LIMIT);
+
     const results = {
       total: bookingsToSync.length,
-      synced: 0,
-      skipped: 0,
-      failed: 0,
-      details: [] as { booking_ref: string; status: string; error?: string }[],
+      synced: details.filter(d => d.status === 'synced').length,
+      skipped: details.filter(d => d.status === 'skipped').length,
+      failed: details.filter(d => d.status === 'failed').length,
+      details,
     };
-
-    for (const booking of bookingsToSync) {
-      const customer = booking.booking_customers;
-      const transport = booking.booking_transport;
-
-      try {
-        const syncResult = await pushBookingToOneBooking('booking.created', {
-          id: booking.id,
-          booking_ref: booking.booking_ref,
-          activity_date: booking.activity_date,
-          time_slot: booking.time_slot,
-          guest_count: Number(booking.guest_count) || 0,
-          total_amount: Number(booking.total_amount) || 0,
-          discount_amount: Number(booking.discount_amount) || 0,
-          currency: 'THB',
-          status: booking.status,
-          special_requests: booking.special_requests || null,
-          stripe_payment_intent_id: booking.stripe_payment_intent_id,
-          created_at: booking.created_at,
-          packages: booking.packages ? {
-            name: booking.packages.name,
-            price: Number(booking.packages.price) || 0,
-          } : null,
-          customers: customer ? {
-            name: `${customer.first_name} ${customer.last_name}`,
-            email: customer.email,
-            phone: customer.phone || null,
-            country_code: customer.country_code || null,
-          } : null,
-          transport_type: transport?.transport_type || null,
-          hotel_name: transport?.hotel_name || null,
-          room_number: transport?.room_number || null,
-          non_players: Number(transport?.non_players) || 0,
-          private_passengers: Number(transport?.private_passengers) || 0,
-          transport_cost: Number(transport?.transport_cost) || 0,
-          booking_addons: booking.booking_addons || [],
-        });
-
-        if (syncResult.success) {
-          results.synced++;
-          results.details.push({ booking_ref: booking.booking_ref, status: 'synced' });
-        } else if (syncResult.code === 'DUPLICATE_BOOKING') {
-          results.skipped++;
-          results.details.push({ booking_ref: booking.booking_ref, status: 'skipped', error: 'Already exists' });
-        } else {
-          results.failed++;
-          results.details.push({ booking_ref: booking.booking_ref, status: 'failed', error: syncResult.error });
-        }
-      } catch (error) {
-        results.failed++;
-        results.details.push({ 
-          booking_ref: booking.booking_ref, 
-          status: 'failed', 
-          error: error instanceof Error ? error.message : 'Unknown error' 
-        });
-      }
-    }
 
     return NextResponse.json({
       success: true,
