@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 
 export async function GET(
   request: NextRequest,
@@ -8,15 +8,38 @@ export async function GET(
   try {
     const { type } = await params;
 
-    const { data, error } = await supabaseAdmin
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('Missing Supabase credentials:', { 
+        hasUrl: !!supabaseUrl, 
+        hasKey: !!supabaseServiceKey 
+      });
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    });
+
+    const { data, error } = await supabase
       .from('legal_content')
       .select('title, content, updated_at')
       .eq('type', type)
       .eq('is_active', true)
       .single();
 
-    if (error || !data) {
-      console.error('Legal content fetch error:', error);
+    if (error) {
+      console.error('Legal content fetch error:', error.message, error.code, error.details);
+      return NextResponse.json({ error: 'Content not found', details: error.message }, { status: 404 });
+    }
+
+    if (!data) {
+      console.error('No data found for type:', type);
       return NextResponse.json({ error: 'Content not found' }, { status: 404 });
     }
 
