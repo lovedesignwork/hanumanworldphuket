@@ -87,6 +87,14 @@ export async function syncBookingToOneBooking(
 ): Promise<SyncResponse> {
   const config = getConfig();
 
+  console.log('[OneBooking Sync] Config check:', {
+    hasApiUrl: !!config.apiUrl,
+    apiUrlPrefix: config.apiUrl ? config.apiUrl.substring(0, 30) + '...' : 'MISSING',
+    hasApiKey: !!config.apiKey,
+    apiKeyPrefix: config.apiKey ? config.apiKey.substring(0, 10) + '...' : 'MISSING',
+    websiteId: config.websiteId,
+  });
+
   if (!config.apiUrl || !config.apiKey) {
     console.warn('[OneBooking Sync] Missing configuration - skipping sync');
     return {
@@ -96,7 +104,10 @@ export async function syncBookingToOneBooking(
     };
   }
 
-  const response = await fetch(`${config.apiUrl}/api/bookings/sync`, {
+  const syncUrl = `${config.apiUrl}/api/bookings/sync`;
+  console.log('[OneBooking Sync] Sending to:', syncUrl);
+
+  const response = await fetch(syncUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -108,7 +119,11 @@ export async function syncBookingToOneBooking(
   const data = await response.json();
 
   if (!response.ok) {
-    console.error('[OneBooking Sync] API error:', data);
+    console.error('[OneBooking Sync] API error:', {
+      status: response.status,
+      statusText: response.statusText,
+      data,
+    });
     throw new Error(data.error || 'Sync failed');
   }
 
