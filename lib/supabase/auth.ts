@@ -17,15 +17,25 @@ export interface AdminUser {
 }
 
 export async function signIn(email: string, password: string) {
+  console.log('[signIn] Starting signInWithPassword for:', email);
   const { data, error } = await supabaseAuth.auth.signInWithPassword({
     email,
     password,
   });
+  console.log('[signIn] signInWithPassword completed:', { 
+    hasData: !!data, 
+    hasSession: !!data?.session,
+    hasUser: !!data?.user,
+    hasError: !!error,
+    errorMessage: error?.message
+  });
 
   if (error) {
+    console.error('[signIn] Error thrown:', error.message);
     throw error;
   }
 
+  console.log('[signIn] Returning data');
   return data;
 }
 

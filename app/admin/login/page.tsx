@@ -18,35 +18,50 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    console.log('[Login] Starting sign in for:', email);
 
     try {
+      console.log('[Login] Calling signIn...');
       const authData = await signIn(email, password);
+      console.log('[Login] signIn returned:', { 
+        hasSession: !!authData.session, 
+        hasUser: !!authData.user,
+        userId: authData.user?.id 
+      });
       
       if (!authData.session) {
+        console.log('[Login] No session returned');
         setError('Sign in failed. Please try again.');
         return;
       }
 
+      console.log('[Login] Calling check-admin API...');
       // Check if user is admin - pass the access token
       const response = await fetch(`/api/auth/check-admin?email=${encodeURIComponent(email)}`, {
         headers: {
           'Authorization': `Bearer ${authData.session.access_token}`,
         },
       });
+      console.log('[Login] check-admin response status:', response.status);
       const data = await response.json();
+      console.log('[Login] check-admin data:', data);
       
       if (data.isAdmin) {
+        console.log('[Login] User is admin, redirecting...');
         // Store admin info in localStorage for client-side checks
         localStorage.setItem('adminUser', JSON.stringify(data.user));
         // Force navigation using window.location for a clean redirect
         window.location.href = '/admin';
       } else {
+        console.log('[Login] User is NOT admin');
         setError('You do not have admin access.');
       }
     } catch (err: unknown) {
+      console.error('[Login] Error:', err);
       const errorMessage = err instanceof Error ? err.message : 'Invalid email or password';
       setError(errorMessage);
     } finally {
+      console.log('[Login] Finally block, setting loading to false');
       setLoading(false);
     }
   };
