@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2026-01-28.clover',
-});
+function getStripe() {
+  return new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: '2026-01-28.clover',
+  });
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -68,7 +70,7 @@ export async function POST(request: NextRequest) {
 
     let stripeRefund: Stripe.Refund;
     try {
-      stripeRefund = await stripe.refunds.create({
+      stripeRefund = await getStripe().refunds.create({
         payment_intent: booking.stripe_payment_intent_id,
         amount: Math.round(amount * 100),
         reason: reason === 'fraudulent' ? 'fraudulent' : 

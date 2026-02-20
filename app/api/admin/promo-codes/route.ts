@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2026-01-28.clover',
-});
+function getStripe() {
+  return new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: '2026-01-28.clover',
+  });
+}
 
 export async function GET() {
   try {
@@ -58,7 +60,7 @@ export async function POST(request: NextRequest) {
         couponParams.currency = 'thb';
       }
 
-      const stripeCoupon = await stripe.coupons.create(couponParams);
+      const stripeCoupon = await getStripe().coupons.create(couponParams);
       stripeCouponId = stripeCoupon.id;
     } catch (stripeError) {
       console.error('Stripe coupon creation error:', stripeError);
@@ -157,7 +159,7 @@ export async function DELETE(request: NextRequest) {
 
     if (promoCode?.stripe_coupon_id) {
       try {
-        await stripe.coupons.del(promoCode.stripe_coupon_id);
+        await getStripe().coupons.del(promoCode.stripe_coupon_id);
       } catch (stripeError) {
         console.error('Stripe coupon deletion error:', stripeError);
       }
