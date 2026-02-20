@@ -21,7 +21,9 @@ import {
   Pencil,
   Check,
   Save,
-  Tag
+  Tag,
+  Cloud,
+  RefreshCw
 } from 'lucide-react';
 import { adminGet, adminPut, adminFetch } from '@/lib/auth/api-client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -75,6 +77,8 @@ export default function BookingsPage() {
   const [editModal, setEditModal] = useState<EditModalData | null>(null);
   const [saving, setSaving] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [bulkSyncing, setBulkSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
     // Wait for auth to be ready before fetching
@@ -253,6 +257,45 @@ export default function BookingsPage() {
     }
   };
 
+  const handleBulkSyncToOneBooking = async () => {
+    if (!confirm('This will sync ALL confirmed/completed bookings to OneBooking Dashboard. Continue?')) {
+      return;
+    }
+    
+    setBulkSyncing(true);
+    setSyncResult(null);
+    
+    try {
+      const response = await adminFetch('/api/admin/bookings/bulk-sync-onebooking', {
+        method: 'POST',
+        body: JSON.stringify({ syncAll: true }),
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        setSyncResult({ 
+          type: 'success', 
+          message: result.message 
+        });
+      } else {
+        setSyncResult({ 
+          type: 'error', 
+          message: result.error || 'Sync failed' 
+        });
+      }
+    } catch (error) {
+      console.error('Bulk sync error:', error);
+      setSyncResult({ 
+        type: 'error', 
+        message: error instanceof Error ? error.message : 'Sync failed' 
+      });
+    } finally {
+      setBulkSyncing(false);
+      setTimeout(() => setSyncResult(null), 10000);
+    }
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-8">
@@ -260,19 +303,43 @@ export default function BookingsPage() {
           <h1 className="text-2xl font-bold text-slate-800">Bookings</h1>
           <p className="text-slate-500">Manage all booking records</p>
         </div>
-        <button 
-          onClick={handleExport}
-          disabled={exporting}
-          className="flex items-center gap-2 px-4 py-2 bg-[#1a237e] text-white rounded-xl hover:bg-[#0d1259] transition-colors disabled:opacity-50"
-        >
-          {exporting ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <Download className="w-4 h-4" />
-          )}
-          {exporting ? 'Exporting...' : 'Export'}
-        </button>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={handleBulkSyncToOneBooking}
+            disabled={bulkSyncing}
+            className="flex items-center gap-2 px-4 py-2 border border-blue-300 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors disabled:opacity-50"
+          >
+            {bulkSyncing ? (
+              <RefreshCw className="w-4 h-4 animate-spin" />
+            ) : (
+              <Cloud className="w-4 h-4" />
+            )}
+            {bulkSyncing ? 'Syncing...' : 'Sync All to OneBooking'}
+          </button>
+          <button 
+            onClick={handleExport}
+            disabled={exporting}
+            className="flex items-center gap-2 px-4 py-2 bg-[#1a237e] text-white rounded-xl hover:bg-[#0d1259] transition-colors disabled:opacity-50"
+          >
+            {exporting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4" />
+            )}
+            {exporting ? 'Exporting...' : 'Export'}
+          </button>
+        </div>
       </div>
+
+      {syncResult && (
+        <div className={`mb-4 p-4 rounded-xl ${
+          syncResult.type === 'success' 
+            ? 'bg-green-50 text-green-800 border border-green-200' 
+            : 'bg-red-50 text-red-800 border border-red-200'
+        }`}>
+          {syncResult.message}
+        </div>
+      )}
 
       <div className="bg-white rounded-2xl shadow-sm mb-6">
         <div className="p-4 border-b border-slate-100">
