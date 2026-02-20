@@ -18,7 +18,8 @@ const RETRY_DELAYS = [1000, 5000, 30000, 300000]; // 1s, 5s, 30s, 5min
 const getConfig = () => ({
   apiUrl: process.env.ONEBOOKING_API_URL || '',
   apiKey: process.env.ONEBOOKING_API_KEY || '',
-  websiteId: process.env.WEBSITE_ID || 'hanuman-world',
+  // Support both WEBSITE_ID and ONEBOOKING_WEBSITE_ID for compatibility
+  websiteId: process.env.WEBSITE_ID || process.env.ONEBOOKING_WEBSITE_ID || 'hanuman-world',
 });
 
 function sleep(ms: number): Promise<void> {

@@ -5,10 +5,10 @@ import { pushBookingToOneBooking } from '@/lib/onebooking/sync';
 
 export const maxDuration = 60; // 60 seconds - works on Pro plan, hobby plan has 10s limit
 
-// Hobby plan has 10s limit, each sync takes ~2s
-// Process 3 bookings in parallel to stay under limit
-const CONCURRENCY_LIMIT = 3;
-const MAX_BOOKINGS_PER_REQUEST = 3;
+// Hobby plan has 10s limit, each sync to OneBooking takes ~3-5s
+// Process only 1 booking per request to guarantee completion
+const CONCURRENCY_LIMIT = 1;
+const MAX_BOOKINGS_PER_REQUEST = 1;
 
 interface SyncDetail {
   booking_ref: string;
