@@ -5,7 +5,10 @@ import { pushBookingToOneBooking } from '@/lib/onebooking/sync';
 
 export const maxDuration = 60; // 60 seconds - works on Pro plan, hobby plan has 10s limit
 
-const CONCURRENCY_LIMIT = 5; // Process 5 bookings in parallel
+// Hobby plan has 10s limit, each sync takes ~2s
+// Process 3 bookings in parallel to stay under limit
+const CONCURRENCY_LIMIT = 3;
+const MAX_BOOKINGS_PER_REQUEST = 3;
 
 interface SyncDetail {
   booking_ref: string;
@@ -117,12 +120,12 @@ export async function POST(request: NextRequest) {
         `)
         .in('status', ['confirmed', 'completed'])
         .order('created_at', { ascending: false })
-        .limit(20); // Limit to 20 bookings per sync to avoid timeout
+        .limit(MAX_BOOKINGS_PER_REQUEST); // Limit per sync to avoid timeout
 
       if (error) throw error;
       bookingsToSync = data || [];
     } else if (bookingIds && Array.isArray(bookingIds)) {
-      const limitedIds = bookingIds.slice(0, 20); // Limit to 20 bookings
+      const limitedIds = bookingIds.slice(0, MAX_BOOKINGS_PER_REQUEST);
       const { data, error } = await supabaseAdmin
         .from('bookings')
         .select(`
