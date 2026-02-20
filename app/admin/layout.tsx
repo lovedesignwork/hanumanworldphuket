@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useState, useEffect } from 'react';
+import { ReactNode, useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -11,6 +11,7 @@ import {
   Menu, 
   X,
   ChevronLeft,
+  ChevronRight,
   Package,
   Gift,
   LogOut,
@@ -20,6 +21,8 @@ import {
   MessageSquare,
   Tag,
   Scale,
+  PanelLeftClose,
+  PanelLeft,
 } from 'lucide-react';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 
@@ -54,7 +57,21 @@ function AdminLayoutContent({ children }: AdminLayoutProps) {
   const router = useRouter();
   const { user, adminUser, loading, signOut } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Skip auth check for login page
   const isLoginPage = pathname === '/admin/login';
@@ -119,21 +136,34 @@ function AdminLayoutContent({ children }: AdminLayoutProps) {
 
   return (
     <div className="min-h-screen bg-slate-100">
+      {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#1a237e] transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 bg-[#1a237e] transform transition-all duration-300 ease-in-out ${
+          sidebarCollapsed ? 'w-20' : 'w-64'
+        } ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
       >
+        {/* Logo */}
         <div className="flex items-center justify-center h-20 px-3 border-b border-white/10 relative">
           <Link href="/admin" className="flex items-center justify-center w-full">
-            <Image
-              src="/images/HW Logo.png"
-              alt="Hanuman World"
-              width={220}
-              height={60}
-              className="h-14 w-full max-w-[200px] object-contain"
-              priority
-            />
+            {sidebarCollapsed ? (
+              <Image
+                src="/images/HW Logo.png"
+                alt="HW"
+                width={40}
+                height={40}
+                className="h-10 w-10 object-contain"
+                priority
+              />
+            ) : (
+              <Image
+                src="/images/HW Logo.png"
+                alt="Hanuman World"
+                width={220}
+                height={60}
+                className="h-14 w-full max-w-[200px] object-contain"
+                priority
+              />
+            )}
           </Link>
           <button
             onClick={() => setSidebarOpen(false)}
@@ -143,7 +173,8 @@ function AdminLayoutContent({ children }: AdminLayoutProps) {
           </button>
         </div>
 
-        <nav className="p-4 space-y-1">
+        {/* Navigation */}
+        <nav className={`p-4 space-y-1 ${sidebarCollapsed ? 'px-2' : ''}`}>
           {filteredNavItems.map((item) => {
             const isActive = pathname === item.href || 
               (item.href !== '/admin' && pathname.startsWith(item.href));
@@ -154,37 +185,44 @@ function AdminLayoutContent({ children }: AdminLayoutProps) {
                 key={item.href}
                 href={item.href}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
+                  sidebarCollapsed ? 'justify-center px-2' : ''
+                } ${
                   isActive
                     ? 'bg-white/20 text-white'
                     : 'text-white/70 hover:bg-white/10 hover:text-white'
                 }`}
                 onClick={() => setSidebarOpen(false)}
+                title={sidebarCollapsed ? item.label : undefined}
               >
-                <Icon className="w-5 h-5" />
-                <span className="font-medium">{item.label}</span>
+                <Icon className="w-5 h-5 flex-shrink-0" />
+                {!sidebarCollapsed && <span className="font-medium">{item.label}</span>}
               </Link>
             );
           })}
         </nav>
 
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10 space-y-1">
-          <Link
-            href="/"
-            className="flex items-center gap-3 px-4 py-3 text-white/70 hover:bg-white/10 hover:text-white rounded-xl transition-colors"
-          >
-            <ChevronLeft className="w-5 h-5" />
-            <span className="font-medium">Back to Site</span>
-          </Link>
+        {/* Collapse Toggle Button - Desktop only */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10">
           <button
-            onClick={handleSignOut}
-            className="w-full flex items-center gap-3 px-4 py-3 text-red-300 hover:bg-red-500/20 hover:text-red-200 rounded-xl transition-colors"
+            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+            className={`hidden lg:flex w-full items-center gap-3 px-4 py-3 text-white/70 hover:bg-white/10 hover:text-white rounded-xl transition-colors ${
+              sidebarCollapsed ? 'justify-center px-2' : ''
+            }`}
+            title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
-            <LogOut className="w-5 h-5" />
-            <span className="font-medium">Sign Out</span>
+            {sidebarCollapsed ? (
+              <PanelLeft className="w-5 h-5" />
+            ) : (
+              <>
+                <PanelLeftClose className="w-5 h-5" />
+                <span className="font-medium">Collapse</span>
+              </>
+            )}
           </button>
         </div>
       </aside>
 
+      {/* Mobile overlay */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
@@ -192,7 +230,8 @@ function AdminLayoutContent({ children }: AdminLayoutProps) {
         />
       )}
 
-      <div className="lg:pl-64">
+      {/* Main content */}
+      <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'}`}>
         <header className="h-16 bg-white shadow-sm flex items-center justify-between px-4 lg:px-8">
           <button
             onClick={() => setSidebarOpen(true)}
@@ -203,18 +242,46 @@ function AdminLayoutContent({ children }: AdminLayoutProps) {
           
           <div className="flex-1 lg:ml-0" />
           
-          <div className="flex items-center gap-4">
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-medium text-slate-800">
-                {adminUser?.full_name || adminUser?.email?.split('@')[0] || 'Admin'}
-              </p>
-              <p className="text-xs text-slate-500 capitalize">{adminUser?.role || 'Admin'}</p>
-            </div>
-            <div className="w-10 h-10 bg-[#1a237e] rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-sm">
-                {adminUser?.full_name?.[0]?.toUpperCase() || adminUser?.email?.[0]?.toUpperCase() || 'A'}
-              </span>
-            </div>
+          {/* User Menu with Dropdown */}
+          <div className="relative" ref={userMenuRef}>
+            <button
+              onClick={() => setUserMenuOpen(!userMenuOpen)}
+              className="flex items-center gap-4 cursor-pointer hover:opacity-80 transition-opacity"
+            >
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-medium text-slate-800">
+                  {adminUser?.full_name || adminUser?.email?.split('@')[0] || 'Admin'}
+                </p>
+                <p className="text-xs text-slate-500 capitalize">{adminUser?.role || 'Admin'}</p>
+              </div>
+              <div className="w-10 h-10 bg-[#1a237e] rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-sm">
+                  {adminUser?.full_name?.[0]?.toUpperCase() || adminUser?.email?.[0]?.toUpperCase() || 'A'}
+                </span>
+              </div>
+            </button>
+
+            {/* Dropdown Menu */}
+            {userMenuOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 py-1 z-50">
+                <div className="px-4 py-2 border-b border-slate-100 sm:hidden">
+                  <p className="text-sm font-medium text-slate-800">
+                    {adminUser?.full_name || adminUser?.email?.split('@')[0] || 'Admin'}
+                  </p>
+                  <p className="text-xs text-slate-500 capitalize">{adminUser?.role || 'Admin'}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setUserMenuOpen(false);
+                    handleSignOut();
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span className="font-medium">Sign Out</span>
+                </button>
+              </div>
+            )}
           </div>
         </header>
 
