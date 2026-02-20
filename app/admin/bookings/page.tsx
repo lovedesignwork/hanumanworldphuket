@@ -576,7 +576,7 @@ export default function BookingsPage() {
                               hour: '2-digit', 
                               minute: '2-digit',
                               timeZone: 'Asia/Bangkok'
-                            })} (GMT+7)
+                            })}
                           </p>
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
