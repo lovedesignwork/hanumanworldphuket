@@ -72,42 +72,12 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function PUT(request: NextRequest) {
-  const auth = await requireAdmin(request);
-  if (isAuthError(auth)) return auth;
-
-  try {
-    const body = await request.json();
-    const { bookingId, transportId, status, hotelName, roomNumber } = body;
-
-    const { error: bookingError } = await supabaseAdmin
-      .from('bookings')
-      .update({ status })
-      .eq('id', bookingId);
-
-    if (bookingError) {
-      console.error('Error updating booking:', bookingError);
-      return NextResponse.json({ error: bookingError.message }, { status: 500 });
-    }
-
-    if (transportId) {
-      const { error: transportError } = await supabaseAdmin
-        .from('booking_transport')
-        .update({
-          hotel_name: hotelName || null,
-          room_number: roomNumber || null,
-        })
-        .eq('id', transportId);
-
-      if (transportError) {
-        console.error('Error updating transport:', transportError);
-        return NextResponse.json({ error: transportError.message }, { status: 500 });
-      }
-    }
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Error in admin bookings PUT:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
+export async function PUT() {
+  return NextResponse.json(
+    { 
+      error: 'Editing disabled. Please use OneBooking Dashboard to edit bookings.',
+      redirectUrl: 'https://onebooking-dashboard.vercel.app/bookings'
+    }, 
+    { status: 403 }
+  );
 }

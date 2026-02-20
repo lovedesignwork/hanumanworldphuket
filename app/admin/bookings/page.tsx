@@ -17,15 +17,13 @@ import {
   MapPin,
   Gift,
   Calendar,
-  X,
-  Pencil,
-  Check,
-  Save,
   Tag,
   Cloud,
-  RefreshCw
+  RefreshCw,
+  ExternalLink,
+  Info
 } from 'lucide-react';
-import { adminGet, adminPut, adminFetch } from '@/lib/auth/api-client';
+import { adminGet, adminFetch } from '@/lib/auth/api-client';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface Booking {
@@ -43,15 +41,6 @@ interface Booking {
   booking_customers: { first_name: string; last_name: string; email: string; phone: string }[];
   booking_transport: { id?: string; transport_type: string; hotel_name: string | null; room_number: string | null; private_passengers: number | null; non_players: number | null }[];
   booking_addons: { quantity: number; promo_addons: { name: string } }[];
-}
-
-interface EditModalData {
-  bookingId: string;
-  bookingRef: string;
-  transportId?: string;
-  status: string;
-  hotelName: string;
-  roomNumber: string;
 }
 
 type SortField = 'booking_ref' | 'activity_date' | 'guest_count' | 'total_amount' | 'status' | 'created_at';
@@ -74,8 +63,6 @@ export default function BookingsPage() {
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
   const [pageSize, setPageSize] = useState(10);
-  const [editModal, setEditModal] = useState<EditModalData | null>(null);
-  const [saving, setSaving] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [bulkSyncing, setBulkSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
@@ -123,42 +110,6 @@ export default function BookingsPage() {
       setSortDirection('desc');
     }
     setPage(1);
-  };
-
-  const openEditModal = (booking: Booking) => {
-    const transport = booking.booking_transport?.[0];
-    setEditModal({
-      bookingId: booking.id,
-      bookingRef: booking.booking_ref,
-      transportId: transport?.id,
-      status: booking.status,
-      hotelName: transport?.hotel_name || '',
-      roomNumber: transport?.room_number || '',
-    });
-  };
-
-  const saveEdit = async () => {
-    if (!editModal) return;
-    setSaving(true);
-    try {
-      const response = await adminPut('/api/admin/bookings', {
-          bookingId: editModal.bookingId,
-          transportId: editModal.transportId,
-          status: editModal.status,
-          hotelName: editModal.hotelName,
-          roomNumber: editModal.roomNumber,
-        });
-
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error);
-
-      await fetchBookings();
-      setEditModal(null);
-    } catch (error) {
-      console.error('Error saving booking:', error);
-    } finally {
-      setSaving(false);
-    }
   };
 
   const SortIcon = ({ field }: { field: SortField }) => {
@@ -258,7 +209,7 @@ export default function BookingsPage() {
   };
 
   const handleBulkSyncToOneBooking = async () => {
-    if (!confirm('This will sync 1 booking to OneBooking Dashboard. Click multiple times to sync all bookings. Continue?')) {
+    if (!confirm('Manual backup sync: This will sync 1 confirmed booking that may not have been synced automatically. New bookings are now synced automatically via database trigger. Continue?')) {
       return;
     }
     
@@ -299,10 +250,10 @@ export default function BookingsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Bookings</h1>
-          <p className="text-slate-500">Manage all booking records</p>
+          <p className="text-slate-500">View all booking records (read-only)</p>
         </div>
         <div className="flex items-center gap-3">
           <button 
@@ -315,7 +266,7 @@ export default function BookingsPage() {
             ) : (
               <Cloud className="w-4 h-4" />
             )}
-            {bulkSyncing ? 'Syncing...' : 'Sync All to OneBooking'}
+            {bulkSyncing ? 'Syncing...' : 'Manual Sync'}
           </button>
           <button 
             onClick={handleExport}
@@ -329,6 +280,25 @@ export default function BookingsPage() {
             )}
             {exporting ? 'Exporting...' : 'Export'}
           </button>
+        </div>
+      </div>
+
+      {/* View-Only Notice */}
+      <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-3">
+        <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+        <div className="flex-1">
+          <p className="text-sm text-blue-800">
+            <span className="font-medium">This page is view-only.</span> New confirmed bookings are automatically synced to OneBooking Dashboard. To edit bookings (status, hotel, etc.), please use OneBooking Dashboard.
+          </p>
+          <a 
+            href="https://onebooking-dashboard.vercel.app/bookings" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 mt-2 text-sm font-medium text-blue-700 hover:text-blue-900 transition-colors"
+          >
+            Open OneBooking Dashboard
+            <ExternalLink className="w-4 h-4" />
+          </a>
         </div>
       </div>
 
@@ -689,22 +659,13 @@ export default function BookingsPage() {
                           </span>
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => openEditModal(booking)}
-                              className="inline-flex items-center gap-1 px-2 py-1 text-sm text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
-                            >
-                              <Pencil className="w-4 h-4" />
-                              Edit
-                            </button>
-                            <Link
-                              href={`/admin/bookings/${booking.id}`}
-                              className="inline-flex items-center gap-1 px-2 py-1 text-sm text-[#1a237e] hover:bg-[#1a237e]/10 rounded-lg transition-colors"
-                            >
-                              <Eye className="w-4 h-4" />
-                              View
-                            </Link>
-                          </div>
+                          <Link
+                            href={`/admin/bookings/${booking.id}`}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-[#1a237e] hover:bg-[#1a237e]/10 rounded-lg transition-colors"
+                          >
+                            <Eye className="w-4 h-4" />
+                            View
+                          </Link>
                         </td>
                       </tr>
                     );
@@ -760,99 +721,6 @@ export default function BookingsPage() {
           </>
         )}
       </div>
-
-      {/* Edit Modal */}
-      {editModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4">
-            <div className="flex items-center justify-between p-4 border-b border-slate-200">
-              <h3 className="text-lg font-semibold text-slate-800">
-                Edit Booking {editModal.bookingRef}
-              </h3>
-              <button
-                onClick={() => setEditModal(null)}
-                className="p-1 hover:bg-slate-100 rounded-lg transition-colors"
-              >
-                <X className="w-5 h-5 text-slate-500" />
-              </button>
-            </div>
-            
-            <div className="p-4 space-y-4">
-              {/* Status */}
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Status
-                </label>
-                <select
-                  value={editModal.status}
-                  onChange={(e) => setEditModal({ ...editModal, status: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#1a237e] text-slate-800"
-                >
-                  <option value="pending">Pending</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
-                  <option value="refunded">Refunded</option>
-                </select>
-              </div>
-
-              {/* Hotel Name */}
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Hotel Name
-                </label>
-                <input
-                  type="text"
-                  value={editModal.hotelName}
-                  onChange={(e) => setEditModal({ ...editModal, hotelName: e.target.value })}
-                  placeholder="Enter hotel name"
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#1a237e] text-slate-800 placeholder:text-slate-400"
-                />
-              </div>
-
-              {/* Room Number */}
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Room Number (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={editModal.roomNumber}
-                  onChange={(e) => setEditModal({ ...editModal, roomNumber: e.target.value })}
-                  placeholder="Enter room number"
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#1a237e] text-slate-800 placeholder:text-slate-400"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-3 p-4 border-t border-slate-200">
-              <button
-                onClick={() => setEditModal(null)}
-                className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={saveEdit}
-                disabled={saving}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#1a237e] hover:bg-[#1a237e]/90 rounded-xl transition-colors disabled:opacity-50"
-              >
-                {saving ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-4 h-4" />
-                    Save Changes
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
