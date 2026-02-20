@@ -222,11 +222,21 @@ export async function pushBookingToOneBooking(
     }>;
   }
 ): Promise<SyncResponse> {
+  // Validate customer email exists before attempting sync
+  if (!bookingData.customers?.email) {
+    console.warn(`[OneBooking Sync] Skipping ${bookingData.booking_ref} - no customer email`);
+    return {
+      success: false,
+      error: 'Customer email is required for sync',
+      code: 'MISSING_CUSTOMER_EMAIL',
+    };
+  }
+
   const customer: CustomerData = {
-    name: bookingData.customers?.name || 'Unknown',
-    email: bookingData.customers?.email || '',
-    phone: bookingData.customers?.phone || null,
-    country_code: bookingData.customers?.country_code || null,
+    name: bookingData.customers.name || 'Unknown',
+    email: bookingData.customers.email,
+    phone: bookingData.customers.phone || null,
+    country_code: bookingData.customers.country_code || null,
     special_requests: bookingData.special_requests || null,
   };
 
