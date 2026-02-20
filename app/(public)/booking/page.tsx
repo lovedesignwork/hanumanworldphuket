@@ -360,19 +360,19 @@ function BookingContent() {
                         <div
                           key={pkg.id}
                           onClick={() => handleSelectPackage(pkg.id)}
-                          className="flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-white/5 cursor-pointer hover:bg-white/10 hover:border-white/20 transition-all"
+                          className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl border border-white/10 bg-white/5 cursor-pointer hover:bg-white/10 hover:border-white/20 transition-all"
                         >
                           <div 
-                            className="w-[120px] h-[120px] rounded-lg bg-cover bg-center flex-shrink-0"
+                            className="w-[70px] h-[70px] sm:w-[100px] sm:h-[100px] md:w-[120px] md:h-[120px] rounded-lg bg-cover bg-center flex-shrink-0"
                             style={{ backgroundImage: `url(${pkg.image})` }}
                           />
                           <div className="flex-grow min-w-0">
-                            <h4 className="text-[30px] font-[family-name:var(--font-oswald)] font-medium text-white">
+                            <h4 className="text-lg sm:text-xl md:text-[30px] font-[family-name:var(--font-oswald)] font-medium text-white truncate">
                               {pkg.name}
                             </h4>
                             <p className="text-xs text-white/50">{pkg.duration}</p>
                           </div>
-                          <div className="text-[26px] text-accent font-[family-name:var(--font-oswald)] font-medium">
+                          <div className="text-base sm:text-lg md:text-[26px] text-accent font-[family-name:var(--font-oswald)] font-medium flex-shrink-0">
                             {formatPrice(pkg.price)}
                           </div>
                         </div>
@@ -415,66 +415,65 @@ function BookingContent() {
                             return (
                               <div
                                 key={promo.id}
-                                className="p-4 rounded-xl border-2 border-white/20 relative overflow-hidden"
+                                className="p-3 sm:p-4 rounded-xl border-2 border-white/20 relative overflow-hidden"
                                 style={{ background: 'linear-gradient(135deg, #0d1259 0%, #0d4a4a 50%, #2a1a5c 100%)' }}
                               >
                                 {/* Rotating circle decoration */}
                                 <img 
                                   src="/images/circlebg.png" 
                                   alt=""
-                                  className="absolute -right-10 -bottom-10 w-[160px] h-[160px] opacity-20 animate-spin-slow"
+                                  className="absolute -right-10 -bottom-10 w-[120px] sm:w-[160px] h-[120px] sm:h-[160px] opacity-20 animate-spin-slow"
                                 />
-                                <div className="flex gap-4 relative z-10">
+                                <div className="flex gap-2 sm:gap-4 relative z-10">
                                   {/* Image */}
                                   <div 
-                                    className="w-[50%] aspect-[10/8] rounded-lg bg-cover bg-center flex-shrink-0"
+                                    className="w-[80px] sm:w-[120px] md:w-[50%] aspect-square sm:aspect-[10/8] rounded-lg bg-cover bg-center flex-shrink-0"
                                     style={{ backgroundImage: `url(${promo.image})` }}
                                   />
                                   
                                   {/* Info & Quantity */}
                                   <div className="flex-grow min-w-0">
-                                    <div className="flex items-center gap-2 mb-1">
-                                      <h4 className="text-[23px] font-[family-name:var(--font-oswald)] font-normal text-white">
+                                    <div className="flex flex-wrap items-center gap-1 sm:gap-2 mb-1">
+                                      <h4 className="text-base sm:text-lg md:text-[23px] font-[family-name:var(--font-oswald)] font-normal text-white">
                                         {promo.name}
                                       </h4>
                                       {promo.discount && (
-                                        <span className="px-2 py-0.5 bg-orange-500 text-white text-xs font-medium rounded">
+                                        <span className="px-1.5 sm:px-2 py-0.5 bg-orange-500 text-white text-[10px] sm:text-xs font-medium rounded">
                                           {promo.discount}
                                         </span>
                                       )}
                                     </div>
-                                    <p className="text-xs text-white/60 mb-2">
+                                    <p className="text-[10px] sm:text-xs text-white/60 mb-1 sm:mb-2 line-clamp-2">
                                       {promo.description}
                                     </p>
                                     
                                     {/* Price */}
-                                    <div className="flex items-center gap-2 mb-3">
+                                    <div className="flex flex-wrap items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
                                       {promo.originalPrice && (
-                                        <span className="text-base text-white/40 line-through">
+                                        <span className="text-xs sm:text-base text-white/40 line-through">
                                           {formatPrice(promo.originalPrice)}
                                         </span>
                                       )}
-                                      <span className="text-2xl font-[family-name:var(--font-oswald)] font-medium text-orange-400">
+                                      <span className="text-lg sm:text-2xl font-[family-name:var(--font-oswald)] font-medium text-orange-400">
                                         {formatPrice(promo.price)}
                                       </span>
-                                      <span className="text-sm text-white/50">/ person</span>
                                     </div>
                                     
                                     {/* Quantity Selector - Below Price */}
-                                    <div className="flex items-center gap-3">
-                                      <p className="text-[10px] text-white/40 uppercase">Player</p>
-                                      <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 sm:gap-3">
+                                      <p className="text-[9px] sm:text-[10px] text-white/40 uppercase">Player</p>
+                                      <div className="flex items-center gap-1 sm:gap-2">
                                         <button
                                           onClick={() => updatePromoAddonQty(promo.id, -1)}
                                           disabled={qty <= 0}
-                                          className="h-8 w-8 rounded border-2 border-orange-500 bg-orange-500 flex items-center justify-center hover:bg-orange-600 hover:border-orange-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                                          className="h-7 w-7 sm:h-8 sm:w-8 rounded border-2 border-orange-500 bg-orange-500 flex items-center justify-center hover:bg-orange-600 hover:border-orange-600 disabled:opacity-30 disabled:cursor-not-allowed"
                                         >
                                           <Minus className="w-3 h-3 text-white" />
                                         </button>
-                                        <span className="w-8 text-center text-lg font-bold text-white">{qty}</span>
+                                        <span className="w-6 sm:w-8 text-center text-base sm:text-lg font-bold text-white">{qty}</span>
                                         <button
                                           onClick={() => updatePromoAddonQty(promo.id, 1)}
-                                          className="h-8 w-8 rounded border-2 border-orange-500 bg-orange-500 flex items-center justify-center hover:bg-orange-600 hover:border-orange-600"
+                                          className="h-7 w-7 sm:h-8 sm:w-8 rounded border-2 border-orange-500 bg-orange-500 flex items-center justify-center hover:bg-orange-600 hover:border-orange-600"
                                         >
                                           <Plus className="w-3 h-3 text-white" />
                                         </button>
@@ -537,7 +536,7 @@ function BookingContent() {
                           <span className="font-bold text-slate-800 text-sm">Select Date & Time</span>
                         </div>
                         
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
                             <label className="block text-[10px] uppercase tracking-wider text-slate-400 mb-1.5">Activity Date</label>
                             <CalendarPicker
@@ -555,7 +554,7 @@ function BookingContent() {
                                   key={slot.time}
                                   onClick={() => setSelectedTime(slot.time)}
                                   disabled={!slot.available}
-                                  className={`h-11 px-4 rounded-lg border-2 text-sm font-medium transition-all ${
+                                  className={`h-10 sm:h-11 px-2 sm:px-4 rounded-lg border-2 text-xs sm:text-sm font-medium transition-all ${
                                     selectedTime === slot.time
                                       ? 'border-[#1a237e] bg-[#1a237e] text-white'
                                       : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'

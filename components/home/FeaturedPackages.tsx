@@ -132,31 +132,31 @@ export function FeaturedPackages() {
                       }}
                     />
                     
-                    <h3 className="text-[65px] font-[family-name:var(--font-oswald)] font-medium tracking-wide text-white mb-4 relative z-10 text-center">
+                    <h3 className="text-3xl sm:text-4xl md:text-5xl lg:text-[65px] font-[family-name:var(--font-oswald)] font-medium tracking-wide text-white mb-4 relative z-10 text-center">
                       {worldAPlus.name}
                     </h3>
                     
                     {worldAPlus.stats && (
-                      <div className="flex justify-center gap-6 mb-4 relative z-10">
+                      <div className="flex flex-wrap justify-center gap-3 sm:gap-4 md:gap-6 mb-4 relative z-10">
                         {Object.entries(worldAPlus.stats).slice(0, 7).map(([key, value]) => (
                           <div key={key} className="text-center">
-                            <div className="text-3xl font-bold text-white font-[family-name:var(--font-oswald)]">{value}</div>
-                            <div className="text-[11px] text-white/80 uppercase font-semibold tracking-wider">{statLabels[key] || key}</div>
+                            <div className="text-xl sm:text-2xl md:text-3xl font-bold text-white font-[family-name:var(--font-oswald)]">{value}</div>
+                            <div className="text-[9px] sm:text-[10px] md:text-[11px] text-white/80 uppercase font-semibold tracking-wider">{statLabels[key] || key}</div>
                           </div>
                         ))}
                       </div>
                     )}
                     
-                    <div className="flex justify-center gap-3 mb-4 relative z-10">
+                    <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-4 relative z-10">
                       {worldAPlus.includesMeal && (
-                        <span className="flex items-center gap-1 px-3 py-1 bg-yellow-400 text-black text-sm rounded-full">
-                          <Utensils className="w-4 h-4" />
+                        <span className="flex items-center gap-1 px-2 sm:px-3 py-1 bg-yellow-400 text-black text-xs sm:text-sm rounded-full">
+                          <Utensils className="w-3 h-3 sm:w-4 sm:h-4" />
                           Free Meal
                         </span>
                       )}
                       {worldAPlus.includesTransfer && (
-                        <span className="flex items-center gap-1 px-3 py-1 bg-yellow-400 text-black text-sm rounded-full">
-                          <Bus className="w-4 h-4" />
+                        <span className="flex items-center gap-1 px-2 sm:px-3 py-1 bg-yellow-400 text-black text-xs sm:text-sm rounded-full">
+                          <Bus className="w-3 h-3 sm:w-4 sm:h-4" />
                           Round Trip Transfer
                         </span>
                       )}
@@ -164,9 +164,9 @@ export function FeaturedPackages() {
                     
                     <Link href={`/booking?package=${worldAPlus.id}`} className="block relative z-10">
                       <div className="p-[2px] rounded-xl transition-all duration-300 hover:scale-105 animated-silver-border-btn">
-                        <button className={`relative z-10 w-full flex items-center justify-center gap-3 py-3.5 rounded-xl ${getButtonGradient(worldAPlus.id)} text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden`}>
-                          <CheckCircle className="w-[19px] h-[19px]" />
-                          <span className="font-[family-name:var(--font-oswald)] font-normal tracking-wide text-[19px]">
+                        <button className={`relative z-10 w-full flex items-center justify-center gap-2 sm:gap-3 py-3 sm:py-3.5 rounded-xl ${getButtonGradient(worldAPlus.id)} text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden`}>
+                          <CheckCircle className="w-4 h-4 sm:w-[19px] sm:h-[19px]" />
+                          <span className="font-[family-name:var(--font-oswald)] font-normal tracking-wide text-sm sm:text-base md:text-[19px]">
                             BOOK NOW: {formatPrice(worldAPlus.price)} / PERSON
                           </span>
                         </button>
@@ -290,10 +290,10 @@ export function FeaturedPackages() {
                       
                       <Link href={`/booking?package=${pkg.id}`} className="block mt-auto relative z-10">
                         <div className={`p-[2px] rounded-xl transition-all duration-300 hover:scale-105 ${getButtonBorder()}`}>
-                          <button className={`relative z-10 w-full flex items-center justify-center gap-3 py-3.5 rounded-xl ${getButtonGradient(pkg.id)} text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden`}>
-                            <CheckCircle className="w-[19px] h-[19px]" />
-                            <span className="font-[family-name:var(--font-oswald)] font-normal tracking-wide text-[19px]">
-                              BOOK NOW: {formatPrice(pkg.price)} / PERSON
+                          <button className={`relative z-10 w-full flex items-center justify-center gap-2 sm:gap-3 py-3 sm:py-3.5 rounded-xl ${getButtonGradient(pkg.id)} text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden`}>
+                            <CheckCircle className="w-4 h-4 sm:w-[19px] sm:h-[19px] flex-shrink-0" />
+                            <span className="font-[family-name:var(--font-oswald)] font-normal tracking-wide text-xs sm:text-sm md:text-[19px]">
+                              BOOK: {formatPrice(pkg.price)}
                             </span>
                           </button>
                         </div>
@@ -343,10 +343,10 @@ export function FeaturedPackages() {
                     
                     <Link href={`/booking?package=${pkg.id}`} className="block mt-auto relative z-10">
                       <div className={`p-[2px] rounded-xl transition-all duration-300 hover:scale-105 ${getButtonBorder()}`}>
-                        <button className={`relative z-10 w-full flex items-center justify-center gap-3 py-3.5 rounded-xl ${getButtonGradient(pkg.id)} text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden`}>
-                          <CheckCircle className="w-[19px] h-[19px]" />
-                          <span className="font-[family-name:var(--font-oswald)] font-normal tracking-wide text-[19px]">
-                            BOOK NOW: {formatPrice(pkg.price)} / PERSON
+                        <button className={`relative z-10 w-full flex items-center justify-center gap-2 sm:gap-3 py-3 sm:py-3.5 rounded-xl ${getButtonGradient(pkg.id)} text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden`}>
+                          <CheckCircle className="w-4 h-4 sm:w-[19px] sm:h-[19px] flex-shrink-0" />
+                          <span className="font-[family-name:var(--font-oswald)] font-normal tracking-wide text-xs sm:text-sm md:text-[19px]">
+                            BOOK: {formatPrice(pkg.price)}
                           </span>
                         </button>
                       </div>
@@ -402,22 +402,22 @@ export function FeaturedPackages() {
                       <span className="text-purple-400 text-sm font-semibold uppercase tracking-wider">Part of Hanuman World</span>
                     </div>
                     
-                    <h3 className="text-[55px] font-[family-name:var(--font-oswald)] font-medium tracking-wide text-white mb-4 relative z-10 text-center">
+                    <h3 className="text-3xl sm:text-4xl md:text-[55px] font-[family-name:var(--font-oswald)] font-medium tracking-wide text-white mb-4 relative z-10 text-center">
                       {lugePackage.name}
                     </h3>
                     
-                    <div className="flex justify-center gap-8 mb-4 relative z-10">
+                    <div className="flex flex-wrap justify-center gap-4 sm:gap-6 md:gap-8 mb-4 relative z-10">
                       <div className="text-center">
-                        <div className="text-3xl font-bold text-white font-[family-name:var(--font-oswald)]">650m</div>
-                        <div className="text-[11px] text-white/80 uppercase font-semibold tracking-wider">TRACK LENGTH</div>
+                        <div className="text-xl sm:text-2xl md:text-3xl font-bold text-white font-[family-name:var(--font-oswald)]">650m</div>
+                        <div className="text-[9px] sm:text-[10px] md:text-[11px] text-white/80 uppercase font-semibold tracking-wider">TRACK LENGTH</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-3xl font-bold text-white font-[family-name:var(--font-oswald)]">100%</div>
-                        <div className="text-[11px] text-white/80 uppercase font-semibold tracking-wider">YOU CONTROL</div>
+                        <div className="text-xl sm:text-2xl md:text-3xl font-bold text-white font-[family-name:var(--font-oswald)]">100%</div>
+                        <div className="text-[9px] sm:text-[10px] md:text-[11px] text-white/80 uppercase font-semibold tracking-wider">YOU CONTROL</div>
                       </div>
                       <div className="text-center">
-                        <div className="text-3xl font-bold text-white font-[family-name:var(--font-oswald)]">ALL</div>
-                        <div className="text-[11px] text-white/80 uppercase font-semibold tracking-wider">AGES WELCOME</div>
+                        <div className="text-xl sm:text-2xl md:text-3xl font-bold text-white font-[family-name:var(--font-oswald)]">ALL</div>
+                        <div className="text-[9px] sm:text-[10px] md:text-[11px] text-white/80 uppercase font-semibold tracking-wider">AGES WELCOME</div>
                       </div>
                     </div>
                     
@@ -427,9 +427,9 @@ export function FeaturedPackages() {
                     
                     <Link href={`/booking?package=${lugePackage.id}`} className="block relative z-10">
                       <div className="p-[2px] rounded-xl transition-all duration-300 hover:scale-105 animated-silver-border-btn">
-                        <button className={`relative z-10 w-full flex items-center justify-center gap-3 py-3.5 rounded-xl animated-btn-purple text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden`}>
-                          <CheckCircle className="w-[19px] h-[19px]" />
-                          <span className="font-[family-name:var(--font-oswald)] font-normal tracking-wide text-[19px]">
+                        <button className={`relative z-10 w-full flex items-center justify-center gap-2 sm:gap-3 py-3 sm:py-3.5 rounded-xl animated-btn-purple text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden`}>
+                          <CheckCircle className="w-4 h-4 sm:w-[19px] sm:h-[19px] flex-shrink-0" />
+                          <span className="font-[family-name:var(--font-oswald)] font-normal tracking-wide text-sm sm:text-base md:text-[19px]">
                             BOOK NOW: {formatPrice(lugePackage.price)} / PERSON
                           </span>
                         </button>
