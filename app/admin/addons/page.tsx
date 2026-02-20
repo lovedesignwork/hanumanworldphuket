@@ -12,6 +12,7 @@ import {
   Percent
 } from 'lucide-react';
 import ImageUploader from '@/components/admin/ImageUploader';
+import { adminGet, adminPost, adminPut, adminPatch } from '@/lib/auth/api-client';
 
 interface AddonData {
   id: string;
@@ -48,7 +49,7 @@ export default function AddonsPage() {
   const fetchAddons = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/admin/addons');
+      const response = await adminGet('/api/admin/addons');
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
       setAddons(result.data || []);
@@ -73,10 +74,7 @@ export default function AddonsPage() {
     if (!editingId) return;
     setSaving(true);
     try {
-      const response = await fetch('/api/admin/addons', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const response = await adminPut('/api/admin/addons', {
           id: editingId,
           name: editForm.name,
           price: editForm.price,
@@ -84,8 +82,7 @@ export default function AddonsPage() {
           description: editForm.description,
           is_active: editForm.is_active,
           image_url: editForm.image_url,
-        }),
-      });
+        });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
       
@@ -103,11 +100,7 @@ export default function AddonsPage() {
 
   const toggleActive = async (addon: AddonData) => {
     try {
-      const response = await fetch('/api/admin/addons', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: addon.id, is_active: !addon.is_active }),
-      });
+      const response = await adminPatch('/api/admin/addons', { id: addon.id, is_active: !addon.is_active });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
       
@@ -125,10 +118,7 @@ export default function AddonsPage() {
     try {
       const id = newAddon.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
       
-      const response = await fetch('/api/admin/addons', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const response = await adminPost('/api/admin/addons', {
           id,
           name: newAddon.name,
           price: newAddon.price,
@@ -136,8 +126,7 @@ export default function AddonsPage() {
           description: newAddon.description || null,
           is_active: true,
           image_url: newAddon.image_url || null,
-        }),
-      });
+        });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
       

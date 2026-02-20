@@ -22,6 +22,7 @@ import {
 import SEOPanel from '@/components/admin/blog/SEOPanel';
 import ImageUpload from '@/components/admin/blog/ImageUpload';
 import { useAuth } from '@/contexts/AuthContext';
+import { adminGet, adminPut, adminDelete } from '@/lib/auth/api-client';
 
 const RichTextEditor = dynamic(
   () => import('@/components/admin/blog/RichTextEditor'),
@@ -108,7 +109,7 @@ export default function EditBlogPostPage({ params }: { params: Promise<{ id: str
 
   const fetchPost = async () => {
     try {
-      const response = await fetch(`/api/admin/blog/${id}`);
+      const response = await adminGet(`/api/admin/blog/${id}`);
       const result = await response.json();
 
       if (!response.ok) throw new Error(result.error || 'Failed to load post');
@@ -240,11 +241,7 @@ export default function EditBlogPostPage({ params }: { params: Promise<{ id: str
         seo_score: seoScore,
       };
 
-      const response = await fetch('/api/admin/blog', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, ...postData }),
-      });
+      const response = await adminPut('/api/admin/blog', { id, ...postData });
 
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || 'Failed to save post');
@@ -264,9 +261,7 @@ export default function EditBlogPostPage({ params }: { params: Promise<{ id: str
     
     setDeleting(true);
     try {
-      const response = await fetch(`/api/admin/blog?id=${id}`, {
-        method: 'DELETE',
-      });
+      const response = await adminDelete(`/api/admin/blog?id=${id}`);
 
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || 'Failed to delete post');

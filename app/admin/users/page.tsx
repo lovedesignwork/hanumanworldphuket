@@ -22,6 +22,7 @@ import {
   Save
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { adminGet, adminPatch } from '@/lib/auth/api-client';
 
 interface AdminUser {
   id: string;
@@ -61,7 +62,7 @@ export default function UsersPage() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('/api/admin/users');
+      const response = await adminGet('/api/admin/users');
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
       setUsers(result.data || []);
@@ -205,11 +206,7 @@ export default function UsersPage() {
     }
 
     try {
-      const response = await fetch('/api/admin/users', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: user.id, is_active: !user.is_active }),
-      });
+      const response = await adminPatch('/api/admin/users', { id: user.id, is_active: !user.is_active });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
       

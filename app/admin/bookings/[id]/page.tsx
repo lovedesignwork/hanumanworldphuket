@@ -26,6 +26,7 @@ import {
   History,
   Tag
 } from 'lucide-react';
+import { adminGet, adminPost, adminPut } from '@/lib/auth/api-client';
 interface PromoCode {
   id: string;
   code: string;
@@ -107,7 +108,7 @@ export default function BookingDetailPage() {
 
   const fetchBooking = async () => {
     try {
-      const response = await fetch(`/api/admin/bookings/${params.id}`);
+      const response = await adminGet(`/api/admin/bookings/${params.id}`);
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
       setBooking(result.data);
@@ -124,11 +125,7 @@ export default function BookingDetailPage() {
     setSavingNotes(true);
     setNotesSaved(false);
     try {
-      const response = await fetch(`/api/admin/bookings/${booking.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ admin_notes: adminNotes }),
-      });
+      const response = await adminPut(`/api/admin/bookings/${booking.id}`, { admin_notes: adminNotes });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
       
@@ -146,7 +143,7 @@ export default function BookingDetailPage() {
     if (!params.id) return;
     setLoadingRefunds(true);
     try {
-      const response = await fetch(`/api/admin/refunds?bookingId=${params.id}`);
+      const response = await adminGet(`/api/admin/refunds?bookingId=${params.id}`);
       const result = await response.json();
       if (response.ok) {
         setRefundHistory(result.data || []);
@@ -174,15 +171,11 @@ export default function BookingDetailPage() {
     try {
       const reason = refundReason === 'other' ? refundCustomReason : refundReason;
       
-      const response = await fetch('/api/admin/refunds', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const response = await adminPost('/api/admin/refunds', {
           bookingId: booking.id,
           amount: amount,
           reason: reason,
-        }),
-      });
+        });
 
       const result = await response.json();
       
@@ -210,11 +203,7 @@ export default function BookingDetailPage() {
     if (!booking) return;
     setUpdating(true);
     try {
-      const response = await fetch(`/api/admin/bookings/${booking.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
-      });
+      const response = await adminPut(`/api/admin/bookings/${booking.id}`, { status: newStatus });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
       

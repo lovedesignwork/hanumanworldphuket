@@ -2,70 +2,65 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase/server';
 import { requireAdmin, isAuthError } from '@/lib/auth/api-auth';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest) {
   const auth = await requireAdmin(request);
   if (isAuthError(auth)) return auth;
 
   try {
-    const { id } = await params;
-    
     const { data, error } = await supabaseAdmin
-      .from('bookings')
-      .select(`
-        *,
-        packages (*),
-        booking_customers (*),
-        booking_transport (*),
-        booking_addons (*, promo_addons (*)),
-        promo_codes (*)
-      `)
-      .eq('id', id)
-      .single();
+      .from('legal_content')
+      .select('*')
+      .order('type', { ascending: true });
 
     if (error) {
-      console.error('Error fetching booking:', error);
+      console.error('Error fetching legal content:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({ data });
   } catch (error) {
-    console.error('Error in booking detail API:', error);
+    console.error('Error in legal content GET:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(request: NextRequest) {
   const auth = await requireAdmin(request);
   if (isAuthError(auth)) return auth;
 
   try {
-    const { id } = await params;
     const body = await request.json();
-    const { status, admin_notes } = body;
+    const { id, title, content, is_active } = body;
 
-    const updateData: Record<string, unknown> = {};
-    if (status !== undefined) updateData.status = status;
-    if (admin_notes !== undefined) updateData.admin_notes = admin_notes;
+    if (!id) {
+      return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+    }
+
+    const updateData: Record<string, unknown> = {
+      updated_at: new Date().toISOString(),
+    };
+
+    if (title !== undefined) updateData.title = title;
+    if (content !== undefined) updateData.content = content;
+    if (is_active !== undefined) updateData.is_active = is_active;
+
+    if (auth && 'user' in auth && auth.user) {
+      updateData.updated_by = auth.user.id;
+    }
 
     const { error } = await supabaseAdmin
-      .from('bookings')
+      .from('legal_content')
       .update(updateData)
       .eq('id', id);
 
     if (error) {
-      console.error('Error updating booking:', error);
+      console.error('Error updating legal content:', error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error in booking detail PUT:', error);
+    console.error('Error in legal content PUT:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

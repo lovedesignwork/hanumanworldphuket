@@ -23,6 +23,7 @@ import {
   Save,
   Tag
 } from 'lucide-react';
+import { adminGet, adminPut, adminFetch } from '@/lib/auth/api-client';
 interface Booking {
   id: string;
   booking_ref: string;
@@ -90,7 +91,7 @@ export default function BookingsPage() {
         dateTo,
       });
 
-      const response = await fetch(`/api/admin/bookings?${params}`);
+      const response = await adminGet(`/api/admin/bookings?${params}`);
       const result = await response.json();
 
       if (!response.ok) throw new Error(result.error);
@@ -130,17 +131,13 @@ export default function BookingsPage() {
     if (!editModal) return;
     setSaving(true);
     try {
-      const response = await fetch('/api/admin/bookings', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const response = await adminPut('/api/admin/bookings', {
           bookingId: editModal.bookingId,
           transportId: editModal.transportId,
           status: editModal.status,
           hotelName: editModal.hotelName,
           roomNumber: editModal.roomNumber,
-        }),
-      });
+        });
 
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
@@ -227,7 +224,7 @@ export default function BookingsPage() {
         dateTo,
       });
 
-      const response = await fetch(`/api/admin/bookings/export?${params}`);
+      const response = await adminGet(`/api/admin/bookings/export?${params}`);
       
       if (!response.ok) {
         throw new Error('Export failed');

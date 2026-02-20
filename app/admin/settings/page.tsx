@@ -14,6 +14,7 @@ import {
   Code,
   BarChart3
 } from 'lucide-react';
+import { adminGet, adminPost } from '@/lib/auth/api-client';
 
 interface GeneralSettings {
   siteName: string;
@@ -76,7 +77,7 @@ export default function SettingsPage() {
 
   const fetchSettings = async () => {
     try {
-      const res = await fetch('/api/admin/settings');
+      const res = await adminGet('/api/admin/settings');
       if (res.ok) {
         const data = await res.json();
         if (data.general) setGeneral(data.general as GeneralSettings);
@@ -94,16 +95,12 @@ export default function SettingsPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await fetch('/api/admin/settings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const res = await adminPost('/api/admin/settings', {
           general,
           contact,
           notifications,
           tracking,
-        }),
-      });
+        });
 
       if (res.ok) {
         setSaved(true);

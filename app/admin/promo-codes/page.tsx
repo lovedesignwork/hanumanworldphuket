@@ -14,6 +14,7 @@ import {
   Calendar,
   Users
 } from 'lucide-react';
+import { adminGet, adminPost, adminPut, adminDelete } from '@/lib/auth/api-client';
 
 interface PromoCode {
   id: string;
@@ -57,7 +58,7 @@ export default function PromoCodesPage() {
   const fetchPromoCodes = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/admin/promo-codes');
+      const response = await adminGet('/api/admin/promo-codes');
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
       setPromoCodes(result.data || []);
@@ -114,11 +115,9 @@ export default function PromoCodesPage() {
         ...(editingId && { id: editingId }),
       };
 
-      const response = await fetch('/api/admin/promo-codes', {
-        method: editingId ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+      const response = editingId 
+        ? await adminPut('/api/admin/promo-codes', payload)
+        : await adminPost('/api/admin/promo-codes', payload);
 
       if (!response.ok) {
         const result = await response.json();
@@ -139,9 +138,7 @@ export default function PromoCodesPage() {
     if (!confirm('Are you sure you want to delete this promo code?')) return;
 
     try {
-      const response = await fetch(`/api/admin/promo-codes?id=${id}`, {
-        method: 'DELETE',
-      });
+      const response = await adminDelete(`/api/admin/promo-codes?id=${id}`);
 
       if (!response.ok) throw new Error('Failed to delete');
       setPromoCodes(promoCodes.filter((p) => p.id !== id));
@@ -152,11 +149,7 @@ export default function PromoCodesPage() {
 
   const toggleActive = async (promo: PromoCode) => {
     try {
-      const response = await fetch('/api/admin/promo-codes', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: promo.id, is_active: !promo.is_active }),
-      });
+      const response = await adminPut('/api/admin/promo-codes', { id: promo.id, is_active: !promo.is_active });
 
       if (!response.ok) throw new Error('Failed to toggle');
       setPromoCodes(promoCodes.map((p) => 

@@ -17,6 +17,7 @@ import {
   X,
   MessageSquare
 } from 'lucide-react';
+import { adminGet, adminPut, adminDelete } from '@/lib/auth/api-client';
 
 interface ContactSubmission {
   id: string;
@@ -56,7 +57,7 @@ export default function ContactsPage() {
         search: searchTerm,
       });
 
-      const response = await fetch(`/api/admin/contacts?${params}`);
+      const response = await adminGet(`/api/admin/contacts?${params}`);
       const result = await response.json();
 
       if (!response.ok) throw new Error(result.error);
@@ -78,11 +79,7 @@ export default function ContactsPage() {
   const updateStatus = async (id: string, status: string) => {
     setUpdating(true);
     try {
-      const response = await fetch('/api/admin/contacts', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, status }),
-      });
+      const response = await adminPut('/api/admin/contacts', { id, status });
 
       if (response.ok) {
         setContacts(contacts.map(c => c.id === id ? { ...c, status: status as ContactSubmission['status'] } : c));
@@ -101,9 +98,7 @@ export default function ContactsPage() {
     if (!confirm('Are you sure you want to delete this contact submission?')) return;
 
     try {
-      const response = await fetch(`/api/admin/contacts?id=${id}`, {
-        method: 'DELETE',
-      });
+      const response = await adminDelete(`/api/admin/contacts?id=${id}`);
 
       if (response.ok) {
         setContacts(contacts.filter(c => c.id !== id));

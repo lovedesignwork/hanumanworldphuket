@@ -11,6 +11,7 @@ import {
   Calendar,
   CalendarDays
 } from 'lucide-react';
+import { adminGet } from '@/lib/auth/api-client';
 interface DashboardStats {
   todayBookings: number;
   weekBookings: number;
@@ -52,7 +53,7 @@ export default function AdminDashboard() {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch('/api/admin/dashboard');
+      const response = await adminGet('/api/admin/dashboard');
       const result = await response.json();
       
       if (!response.ok) throw new Error(result.error);

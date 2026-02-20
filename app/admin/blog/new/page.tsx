@@ -20,6 +20,7 @@ import {
 import SEOPanel from '@/components/admin/blog/SEOPanel';
 import ImageUpload from '@/components/admin/blog/ImageUpload';
 import { useAuth } from '@/contexts/AuthContext';
+import { adminPost } from '@/lib/auth/api-client';
 
 const RichTextEditor = dynamic(
   () => import('@/components/admin/blog/RichTextEditor'),
@@ -186,11 +187,7 @@ export default function NewBlogPostPage() {
         seo_score: seoScore,
       };
 
-      const response = await fetch('/api/admin/blog', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(postData),
-      });
+      const response = await adminPost('/api/admin/blog', postData);
 
       const result = await response.json();
 

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Lock, Loader2, AlertCircle, CreditCard } from 'lucide-react';
+import { LegalModal } from '@/components/ui/LegalModal';
 
 interface EmbeddedCardFormProps {
   amount: number;
@@ -23,6 +24,8 @@ export default function EmbeddedCardForm({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [cardComplete, setCardComplete] = useState(false);
+  const [termsModalOpen, setTermsModalOpen] = useState(false);
+  const [privacyModalOpen, setPrivacyModalOpen] = useState(false);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('th-TH', {
@@ -124,10 +127,21 @@ export default function EmbeddedCardForm({
             />
           </div>
           <span className="text-xs text-slate-600 pt-1">
-            I agree to the <a href="/terms" className="text-[#1a237e] underline" target="_blank">Terms & Conditions</a> and <a href="/privacy" className="text-[#1a237e] underline" target="_blank">Privacy Policy</a>. I understand the cancellation policy and that bookings are non-refundable within 24 hours of the activity. *
+            I agree to the <button type="button" onClick={() => setTermsModalOpen(true)} className="text-[#1a237e] underline hover:text-[#1a237e]/80 transition-colors">Terms & Conditions</button> and <button type="button" onClick={() => setPrivacyModalOpen(true)} className="text-[#1a237e] underline hover:text-[#1a237e]/80 transition-colors">Privacy Policy</button>. I understand the cancellation policy and that bookings are non-refundable within 24 hours of the activity. *
           </span>
         </label>
       </div>
+
+      <LegalModal
+        isOpen={termsModalOpen}
+        onClose={() => setTermsModalOpen(false)}
+        type="terms_conditions"
+      />
+      <LegalModal
+        isOpen={privacyModalOpen}
+        onClose={() => setPrivacyModalOpen(false)}
+        type="privacy_policy"
+      />
 
       {/* Debit/Credit Card Header */}
       <div className="flex items-center gap-2 mb-3 pb-2 border-b border-slate-200">

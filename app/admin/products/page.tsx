@@ -14,6 +14,7 @@ import {
   Car
 } from 'lucide-react';
 import ImageUploader from '@/components/admin/ImageUploader';
+import { adminGet, adminPost, adminPut, adminPatch } from '@/lib/auth/api-client';
 
 interface PackageData {
   id: string;
@@ -63,7 +64,7 @@ export default function ProductsPage() {
   const fetchPackages = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/admin/products');
+      const response = await adminGet('/api/admin/products');
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
       setPackages(result.data || []);
@@ -88,10 +89,7 @@ export default function ProductsPage() {
     if (!editingId) return;
     setSaving(true);
     try {
-      const response = await fetch('/api/admin/products', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const response = await adminPut('/api/admin/products', {
           id: editingId,
           name: editForm.name,
           price: editForm.price,
@@ -101,8 +99,7 @@ export default function ProductsPage() {
           includes_transfer: editForm.includes_transfer,
           is_active: editForm.is_active,
           image_url: editForm.image_url,
-        }),
-      });
+        });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
       
@@ -120,11 +117,7 @@ export default function ProductsPage() {
 
   const toggleActive = async (pkg: PackageData) => {
     try {
-      const response = await fetch('/api/admin/products', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: pkg.id, is_active: !pkg.is_active }),
-      });
+      const response = await adminPatch('/api/admin/products', { id: pkg.id, is_active: !pkg.is_active });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
       
@@ -142,10 +135,7 @@ export default function ProductsPage() {
     try {
       const id = newPackage.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
       
-      const response = await fetch('/api/admin/products', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const response = await adminPost('/api/admin/products', {
           id,
           name: newPackage.name,
           price: newPackage.price,
@@ -155,8 +145,7 @@ export default function ProductsPage() {
           includes_transfer: newPackage.includes_transfer || false,
           is_active: true,
           image_url: newPackage.image_url || null,
-        }),
-      });
+        });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
       

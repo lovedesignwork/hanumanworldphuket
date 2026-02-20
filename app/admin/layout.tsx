@@ -19,6 +19,7 @@ import {
   FileText,
   MessageSquare,
   Tag,
+  Scale,
 } from 'lucide-react';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 
@@ -43,6 +44,7 @@ const navItems: NavItem[] = [
   { href: '/admin/promo-codes', label: 'Promo Codes', icon: Tag },
   { href: '/admin/blog', label: 'Blog', icon: FileText, writerAllowed: true },
   { href: '/admin/contacts', label: 'Contacts', icon: MessageSquare },
+  { href: '/admin/legal', label: 'Legal Content', icon: Scale },
   { href: '/admin/users', label: 'Users', icon: Users, superadminOnly: true },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
 ];

@@ -17,6 +17,7 @@ import {
   MoreVertical,
   ExternalLink,
 } from 'lucide-react';
+import { adminGet, adminDelete } from '@/lib/auth/api-client';
 interface BlogPost {
   id: string;
   title: string;
@@ -53,7 +54,7 @@ export default function BlogListPage() {
 
   const fetchPosts = async () => {
     try {
-      const response = await fetch('/api/admin/blog');
+      const response = await adminGet('/api/admin/blog');
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
       setPosts(result.data || []);
@@ -69,9 +70,7 @@ export default function BlogListPage() {
     
     setDeleting(true);
     try {
-      const response = await fetch(`/api/admin/blog?id=${postId}`, {
-        method: 'DELETE',
-      });
+      const response = await adminDelete(`/api/admin/blog?id=${postId}`);
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
       
