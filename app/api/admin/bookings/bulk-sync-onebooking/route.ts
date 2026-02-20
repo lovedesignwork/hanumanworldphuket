@@ -13,11 +13,24 @@ interface SyncDetail {
   error?: string;
 }
 
+interface BookingAddon {
+  quantity: number;
+  unit_price: number;
+  promo_addons?: { name: string } | null;
+}
+
 async function syncBooking(booking: Record<string, unknown>): Promise<SyncDetail> {
   const customer = booking.booking_customers as Record<string, unknown> | null;
   const transport = booking.booking_transport as Record<string, unknown> | null;
   const packages = booking.packages as Record<string, unknown> | null;
-  const bookingAddons = booking.booking_addons as Record<string, unknown>[] || [];
+  const rawAddons = booking.booking_addons as Record<string, unknown>[] || [];
+  
+  // Map to properly typed addons
+  const bookingAddons: BookingAddon[] = rawAddons.map(addon => ({
+    quantity: Number(addon.quantity) || 0,
+    unit_price: Number(addon.unit_price) || 0,
+    promo_addons: addon.promo_addons as { name: string } | null,
+  }));
 
   try {
     const syncResult = await pushBookingToOneBooking('booking.created', {
