@@ -118,8 +118,8 @@ export async function POST(request: NextRequest) {
             price: addon.unit_price,
           })) || [];
 
-          // Send confirmation email to customer
-          await sendBookingConfirmationEmail({
+          // Run email and sync tasks in parallel (non-blocking) to avoid webhook timeout
+          const emailPromise = sendBookingConfirmationEmail({
             customerEmail: customer.email,
             customerName: customer.first_name,
             bookingRef: booking.booking_ref,
@@ -133,75 +133,75 @@ export async function POST(request: NextRequest) {
             hasTransfer: !!transport,
             isPrivateTransfer: transport?.transport_type === 'private',
             addons,
+          }).then(() => {
+            console.log(`Booking confirmation email sent for ${booking.booking_ref}`);
+          }).catch((err) => {
+            console.error('Error sending booking confirmation email:', err);
           });
 
-          console.log(`Booking confirmation email sent for ${booking.booking_ref}`);
-
-          // Send notification email to admin
-          try {
-            await sendBookingNotificationEmail({
-              bookingRef: booking.booking_ref,
-              customerName: `${customer.first_name} ${customer.last_name}`,
-              customerEmail: customer.email,
-              customerPhone: customer.phone || '',
-              packageName: booking.packages?.name || 'Adventure Package',
-              playDate: activityDate,
-              timeSlot: formatTime(booking.time_slot),
-              players: booking.guest_count,
-              nonPlayers: transport?.non_players || undefined,
-              transportType: transport?.transport_type || 'none',
-              hotelName: transport?.hotel_name || undefined,
-              roomNumber: transport?.room_number || undefined,
-              privatePassengers: transport?.private_passengers || undefined,
-              addons,
-              totalAmount: booking.total_amount,
-              paymentStatus: 'confirmed',
-            });
-
+          const adminEmailPromise = sendBookingNotificationEmail({
+            bookingRef: booking.booking_ref,
+            customerName: `${customer.first_name} ${customer.last_name}`,
+            customerEmail: customer.email,
+            customerPhone: customer.phone || '',
+            packageName: booking.packages?.name || 'Adventure Package',
+            playDate: activityDate,
+            timeSlot: formatTime(booking.time_slot),
+            players: booking.guest_count,
+            nonPlayers: transport?.non_players || undefined,
+            transportType: transport?.transport_type || 'none',
+            hotelName: transport?.hotel_name || undefined,
+            roomNumber: transport?.room_number || undefined,
+            privatePassengers: transport?.private_passengers || undefined,
+            addons,
+            totalAmount: booking.total_amount,
+            paymentStatus: 'confirmed',
+          }).then(() => {
             console.log(`Admin notification email sent for ${booking.booking_ref}`);
-          } catch (notifError) {
-            console.error('Failed to send admin notification:', notifError);
-          }
+          }).catch((err) => {
+            console.error('Failed to send admin notification:', err);
+          });
 
           // Sync booking to OneBooking Central Dashboard
-          try {
-            const syncResult = await pushBookingToOneBooking('booking.created', {
-              id: booking.id,
-              booking_ref: booking.booking_ref,
-              activity_date: booking.activity_date,
-              time_slot: booking.time_slot,
-              guest_count: booking.guest_count,
-              total_amount: booking.total_amount,
-              discount_amount: booking.discount_amount || 0,
-              currency: 'THB',
-              status: 'confirmed',
-              special_requests: booking.special_requests,
-              stripe_payment_intent_id: paymentIntent.id,
-              created_at: booking.created_at,
-              packages: booking.packages,
-              customers: customer ? {
-                name: `${customer.first_name} ${customer.last_name}`,
-                email: customer.email,
-                phone: customer.phone,
-                country_code: customer.country_code,
-              } : null,
-              transport_type: transport?.transport_type,
-              hotel_name: transport?.hotel_name,
-              room_number: transport?.room_number,
-              non_players: transport?.non_players || 0,
-              private_passengers: transport?.private_passengers || 0,
-              transport_cost: transport?.price || 0,
-              booking_addons: booking.booking_addons,
-            });
-
+          const syncPromise = pushBookingToOneBooking('booking.created', {
+            id: booking.id,
+            booking_ref: booking.booking_ref,
+            activity_date: booking.activity_date,
+            time_slot: booking.time_slot,
+            guest_count: booking.guest_count,
+            total_amount: booking.total_amount,
+            discount_amount: booking.discount_amount || 0,
+            currency: 'THB',
+            status: 'confirmed',
+            special_requests: booking.special_requests,
+            stripe_payment_intent_id: paymentIntent.id,
+            created_at: booking.created_at,
+            packages: booking.packages,
+            customers: customer ? {
+              name: `${customer.first_name} ${customer.last_name}`,
+              email: customer.email,
+              phone: customer.phone,
+              country_code: customer.country_code,
+            } : null,
+            transport_type: transport?.transport_type,
+            hotel_name: transport?.hotel_name,
+            room_number: transport?.room_number,
+            non_players: transport?.non_players || 0,
+            private_passengers: transport?.private_passengers || 0,
+            transport_cost: transport?.transport_cost || 0,
+            booking_addons: booking.booking_addons,
+          }).then((syncResult) => {
             if (syncResult.success) {
               console.log(`[OneBooking] Synced ${booking.booking_ref} to central dashboard`);
             } else {
               console.warn(`[OneBooking] Sync skipped/failed for ${booking.booking_ref}:`, syncResult.error);
             }
-          } catch (syncError) {
+          }).catch((syncError) => {
             console.error(`[OneBooking] Sync error for ${booking.booking_ref}:`, syncError);
-          }
+          });
+
+          // Wait for all tasks to complete (but don't let one failure block others)
+          await Promise.allSettled([emailPromise, adminEmailPromise, syncPromise]);
         }
       }
       break;
