@@ -24,7 +24,8 @@ import {
   X,
   DollarSign,
   History,
-  Tag
+  Tag,
+  Cloud
 } from 'lucide-react';
 import { adminGet, adminPost, adminPut } from '@/lib/auth/api-client';
 interface PromoCode {
@@ -100,6 +101,8 @@ export default function BookingDetailPage() {
   const [processingRefund, setProcessingRefund] = useState(false);
   const [refundHistory, setRefundHistory] = useState<RefundRecord[]>([]);
   const [loadingRefunds, setLoadingRefunds] = useState(false);
+  const [syncingToOneBooking, setSyncingToOneBooking] = useState(false);
+  const [syncMessage, setSyncMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
     fetchBooking();
@@ -157,6 +160,30 @@ export default function BookingDetailPage() {
 
   const totalRefunded = refundHistory.reduce((sum, r) => sum + r.amount, 0);
   const maxRefundable = booking ? booking.total_amount - totalRefunded : 0;
+
+  const syncToOneBooking = async () => {
+    if (!booking) return;
+    setSyncingToOneBooking(true);
+    setSyncMessage(null);
+    try {
+      const response = await adminPost('/api/admin/bookings/sync-to-onebooking', {
+        bookingId: booking.id,
+      });
+      const result = await response.json();
+      
+      if (result.success) {
+        setSyncMessage({ type: 'success', text: `Synced to OneBooking successfully!` });
+      } else {
+        setSyncMessage({ type: 'error', text: result.error || 'Sync failed' });
+      }
+    } catch (error) {
+      console.error('Sync error:', error);
+      setSyncMessage({ type: 'error', text: error instanceof Error ? error.message : 'Sync failed' });
+    } finally {
+      setSyncingToOneBooking(false);
+      setTimeout(() => setSyncMessage(null), 5000);
+    }
+  };
 
   const processRefund = async () => {
     if (!booking || !refundAmount) return;
@@ -524,6 +551,30 @@ export default function BookingDetailPage() {
                   <RotateCcw className="w-4 h-4" />
                   Process Refund
                 </button>
+              )}
+
+              {/* Sync to OneBooking Button */}
+              <button
+                onClick={syncToOneBooking}
+                disabled={syncingToOneBooking}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-blue-300 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors disabled:opacity-50"
+              >
+                {syncingToOneBooking ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Cloud className="w-4 h-4" />
+                )}
+                Sync to OneBooking
+              </button>
+
+              {syncMessage && (
+                <div className={`p-3 rounded-lg text-sm ${
+                  syncMessage.type === 'success' 
+                    ? 'bg-green-50 text-green-700 border border-green-200' 
+                    : 'bg-red-50 text-red-700 border border-red-200'
+                }`}>
+                  {syncMessage.text}
+                </div>
               )}
             </div>
           </div>
