@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ 
         success: true, 
         message: `Booking ${booking.booking_ref} synced to OneBooking successfully`,
-        onebooking_id: syncResult.onebooking_id 
+        booking_id: syncResult.booking_id 
       });
     } else {
       return NextResponse.json({ 
