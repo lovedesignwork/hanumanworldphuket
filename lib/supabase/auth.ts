@@ -17,40 +17,55 @@ export interface AdminUser {
 }
 
 export async function signIn(email: string, password: string) {
-  console.log('[signIn] Starting signInWithPassword for:', email);
+  console.log('[signIn] Starting manual sign in for:', email);
   
-  // Use a promise race to detect if signInWithPassword hangs
-  const timeoutPromise = new Promise<never>((_, reject) => {
-    setTimeout(() => {
-      console.error('[signIn] TIMEOUT - signInWithPassword took more than 15 seconds');
-      reject(new Error('Sign in timed out. Please try again.'));
-    }, 15000);
+  // Use native fetch to bypass SDK hang issue
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  
+  console.log('[signIn] Making fetch request to:', `${supabaseUrl}/auth/v1/token?grant_type=password`);
+  
+  const response = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': supabaseAnonKey,
+    },
+    body: JSON.stringify({ email, password }),
   });
   
-  const authPromise = supabaseAuth.auth.signInWithPassword({
-    email,
-    password,
-  });
+  console.log('[signIn] Fetch response status:', response.status);
   
-  console.log('[signIn] Waiting for signInWithPassword...');
+  const data = await response.json();
+  console.log('[signIn] Response data:', { hasAccessToken: !!data.access_token, hasUser: !!data.user });
   
-  const { data, error } = await Promise.race([authPromise, timeoutPromise]);
-  
-  console.log('[signIn] signInWithPassword completed:', { 
-    hasData: !!data, 
-    hasSession: !!data?.session,
-    hasUser: !!data?.user,
-    hasError: !!error,
-    errorMessage: error?.message
-  });
-
-  if (error) {
-    console.error('[signIn] Error thrown:', error.message);
-    throw error;
+  if (!response.ok) {
+    console.error('[signIn] Auth error:', data.error_description || data.error || 'Unknown error');
+    throw new Error(data.error_description || data.error || 'Sign in failed');
   }
-
-  console.log('[signIn] Returning data');
-  return data;
+  
+  // Manually set the session in the Supabase client
+  console.log('[signIn] Setting session in Supabase client...');
+  const { error: sessionError } = await supabaseAuth.auth.setSession({
+    access_token: data.access_token,
+    refresh_token: data.refresh_token,
+  });
+  
+  if (sessionError) {
+    console.error('[signIn] Failed to set session:', sessionError.message);
+    throw sessionError;
+  }
+  
+  console.log('[signIn] Session set successfully');
+  
+  return {
+    user: data.user,
+    session: {
+      access_token: data.access_token,
+      refresh_token: data.refresh_token,
+      user: data.user,
+    },
+  };
 }
 
 export async function signOut() {
