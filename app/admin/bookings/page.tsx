@@ -22,7 +22,8 @@ import {
   RefreshCw,
   ExternalLink,
   Info,
-  X
+  X,
+  StickyNote
 } from 'lucide-react';
 import { adminGet, adminFetch } from '@/lib/auth/api-client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -40,7 +41,7 @@ interface Booking {
   created_at: string;
   packages: { name: string };
   promo_codes?: { code: string; discount_type: string; discount_value: number } | null;
-  booking_customers: { first_name: string; last_name: string; email: string; phone: string }[];
+  booking_customers: { first_name: string; last_name: string; email: string; phone: string; special_requests?: string | null }[];
   booking_transport: { id?: string; transport_type: string; hotel_name: string | null; room_number: string | null; private_passengers: number | null; non_players: number | null }[];
   booking_addons: { quantity: number; promo_addons: { name: string } }[];
 }
@@ -503,6 +504,9 @@ export default function BookingsPage() {
                         <SortIcon field="total_amount" />
                       </div>
                     </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+                      Notes
+                    </th>
                     <th 
                       className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100"
                       onClick={() => handleSort('status')}
@@ -650,6 +654,18 @@ export default function BookingsPage() {
                               </div>
                             )}
                           </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          {customer?.special_requests ? (
+                            <div className="flex items-start gap-1.5 max-w-[180px]" title={customer.special_requests}>
+                              <StickyNote className="w-3.5 h-3.5 text-amber-500 flex-shrink-0 mt-0.5" />
+                              <p className="text-xs text-slate-600 line-clamp-2">
+                                {customer.special_requests}
+                              </p>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-slate-400">-</span>
+                          )}
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
                           <span

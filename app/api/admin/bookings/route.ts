@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
         *,
         packages (name),
         promo_codes (code, discount_type, discount_value),
-        booking_customers (first_name, last_name, email, phone),
+        booking_customers (first_name, last_name, email, phone, special_requests),
         booking_transport (id, transport_type, hotel_name, room_number, private_passengers, non_players),
         booking_addons (quantity, promo_addons (name))
       `, { count: 'exact' })
