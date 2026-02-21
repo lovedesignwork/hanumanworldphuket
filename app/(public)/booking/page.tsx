@@ -562,16 +562,18 @@ function BookingContent() {
                           </div>
                           
                           {isOpenTimePackage ? (
-                            /* Open Time Message for Roller, Skywalk, Slingshot, World D+ */
-                            <div className="p-4 rounded-xl border-2 border-green-500/30 bg-green-500/10">
-                              <div className="flex items-center gap-2 mb-2">
-                                <Clock className="w-4 h-4 text-green-600" />
-                                <span className="text-sm font-medium text-slate-800">Flexible Time</span>
+                            /* Open Time Message for Roller, Skywalk, Slingshot, World D+ - Only show after date selected */
+                            selectedDate && (
+                              <div className="p-4 rounded-xl border-2 border-green-500/30 bg-green-500/10">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Clock className="w-4 h-4 text-green-600" />
+                                  <span className="text-sm font-medium text-slate-800">Flexible Time</span>
+                                </div>
+                                <p className="text-xs text-slate-600">
+                                  This activity is available <span className="font-semibold text-green-700">anytime between 8:00 AM - 6:00 PM</span> on your selected date. No specific time slot reservation needed.
+                                </p>
                               </div>
-                              <p className="text-xs text-slate-600">
-                                This activity is available <span className="font-semibold text-green-700">anytime between 8:00 AM - 6:00 PM</span> on your selected date. No specific time slot reservation needed.
-                              </p>
-                            </div>
+                            )
                           ) : (
                             /* Time Slot Selection for Zipline packages */
                             <div>
