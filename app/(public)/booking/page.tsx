@@ -435,17 +435,18 @@ function BookingContent() {
                                   alt=""
                                   className="absolute -right-10 -bottom-10 w-[120px] sm:w-[160px] h-[120px] sm:h-[160px] opacity-20 animate-spin-slow"
                                 />
-                                <div className="flex gap-2 sm:gap-4 relative z-10">
-                                  {/* Image */}
+                                {/* Mobile: Stack vertically (image on top), Desktop: Side by side */}
+                                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 relative z-10">
+                                  {/* Image - Full width on mobile, fixed width on desktop */}
                                   <div 
-                                    className="w-[80px] sm:w-[120px] md:w-[50%] aspect-square sm:aspect-[10/8] rounded-lg bg-cover bg-center flex-shrink-0"
+                                    className="w-full sm:w-[120px] md:w-[50%] aspect-[16/9] sm:aspect-[10/8] rounded-lg bg-cover bg-center flex-shrink-0"
                                     style={{ backgroundImage: `url(${promo.image})` }}
                                   />
                                   
                                   {/* Info & Quantity */}
                                   <div className="flex-grow min-w-0">
                                     <div className="flex flex-wrap items-center gap-1 sm:gap-2 mb-1">
-                                      <h4 className="text-base sm:text-lg md:text-[23px] font-[family-name:var(--font-oswald)] font-normal text-white">
+                                      <h4 className="text-lg sm:text-lg md:text-[23px] font-[family-name:var(--font-oswald)] font-normal text-white">
                                         {promo.name}
                                       </h4>
                                       {promo.discount && (
@@ -454,40 +455,43 @@ function BookingContent() {
                                         </span>
                                       )}
                                     </div>
-                                    <p className="text-[10px] sm:text-xs text-white/60 mb-1 sm:mb-2 line-clamp-2">
+                                    <p className="text-xs sm:text-xs text-white/60 mb-2 sm:mb-2 line-clamp-2">
                                       {promo.description}
                                     </p>
                                     
-                                    {/* Price */}
-                                    <div className="flex flex-wrap items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
-                                      {promo.originalPrice && (
-                                        <span className="text-xs sm:text-base text-white/40 line-through">
-                                          {formatPrice(promo.originalPrice)}
+                                    {/* Price and Quantity - Row on mobile */}
+                                    <div className="flex items-center justify-between sm:flex-col sm:items-start sm:gap-2">
+                                      {/* Price */}
+                                      <div className="flex items-center gap-2">
+                                        {promo.originalPrice && (
+                                          <span className="text-sm sm:text-base text-white/40 line-through">
+                                            {formatPrice(promo.originalPrice)}
+                                          </span>
+                                        )}
+                                        <span className="text-xl sm:text-2xl font-[family-name:var(--font-oswald)] font-medium text-orange-400">
+                                          {formatPrice(promo.price)}
                                         </span>
-                                      )}
-                                      <span className="text-lg sm:text-2xl font-[family-name:var(--font-oswald)] font-medium text-orange-400">
-                                        {formatPrice(promo.price)}
-                                      </span>
-                                    </div>
-                                    
-                                    {/* Quantity Selector - Below Price */}
-                                    <div className="flex items-center gap-2 sm:gap-3">
-                                      <p className="text-[9px] sm:text-[10px] text-white/40 uppercase">Player</p>
-                                      <div className="flex items-center gap-1 sm:gap-2">
-                                        <button
-                                          onClick={() => updatePromoAddonQty(promo.id, -1)}
-                                          disabled={qty <= 0}
-                                          className="h-7 w-7 sm:h-8 sm:w-8 rounded border-2 border-orange-500 bg-orange-500 flex items-center justify-center hover:bg-orange-600 hover:border-orange-600 disabled:opacity-30 disabled:cursor-not-allowed"
-                                        >
-                                          <Minus className="w-3 h-3 text-white" />
-                                        </button>
-                                        <span className="w-6 sm:w-8 text-center text-base sm:text-lg font-bold text-white">{qty}</span>
-                                        <button
-                                          onClick={() => updatePromoAddonQty(promo.id, 1)}
-                                          className="h-7 w-7 sm:h-8 sm:w-8 rounded border-2 border-orange-500 bg-orange-500 flex items-center justify-center hover:bg-orange-600 hover:border-orange-600"
-                                        >
-                                          <Plus className="w-3 h-3 text-white" />
-                                        </button>
+                                      </div>
+                                      
+                                      {/* Quantity Selector */}
+                                      <div className="flex items-center gap-2 sm:gap-3">
+                                        <p className="text-[10px] sm:text-[10px] text-white/40 uppercase">Player</p>
+                                        <div className="flex items-center gap-1 sm:gap-2">
+                                          <button
+                                            onClick={() => updatePromoAddonQty(promo.id, -1)}
+                                            disabled={qty <= 0}
+                                            className="h-8 w-8 sm:h-8 sm:w-8 rounded border-2 border-orange-500 bg-orange-500 flex items-center justify-center hover:bg-orange-600 hover:border-orange-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                                          >
+                                            <Minus className="w-3.5 h-3.5 text-white" />
+                                          </button>
+                                          <span className="w-8 sm:w-8 text-center text-lg sm:text-lg font-bold text-white">{qty}</span>
+                                          <button
+                                            onClick={() => updatePromoAddonQty(promo.id, 1)}
+                                            className="h-8 w-8 sm:h-8 sm:w-8 rounded border-2 border-orange-500 bg-orange-500 flex items-center justify-center hover:bg-orange-600 hover:border-orange-600"
+                                          >
+                                            <Plus className="w-3.5 h-3.5 text-white" />
+                                          </button>
+                                        </div>
                                       </div>
                                     </div>
                                     
