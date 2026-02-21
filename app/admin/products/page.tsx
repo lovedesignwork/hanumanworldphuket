@@ -241,7 +241,7 @@ export default function ProductsPage() {
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
               <CustomSelect
-                value={newPackage.category}
+                value={newPackage.category || ''}
                 onChange={(value) => setNewPackage({ ...newPackage, category: value })}
                 options={CATEGORIES.map((cat) => ({ value: cat.value, label: cat.label }))}
               />
@@ -340,7 +340,7 @@ export default function ProductsPage() {
                     </td>
                     <td className="px-6 py-4">
                       <CustomSelect
-                        value={editForm.category}
+                        value={editForm.category || ''}
                         onChange={(value) => setEditForm({ ...editForm, category: value })}
                         options={CATEGORIES.map((cat) => ({ value: cat.value, label: cat.label }))}
                         size="sm"
