@@ -163,6 +163,8 @@ function CheckoutContent() {
   // Format time for display
   const formatTime = (timeString: string) => {
     if (!timeString) return '';
+    // Handle flexible time for open time packages
+    if (timeString === 'flexible') return '8:00 AM - 6:00 PM (Flexible)';
     const [hours, minutes] = timeString.split(':').map(Number);
     const period = hours >= 12 ? 'PM' : 'AM';
     const displayHours = hours % 12 || 12;

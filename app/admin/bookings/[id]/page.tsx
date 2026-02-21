@@ -349,7 +349,9 @@ export default function BookingDetailPage() {
                   <Clock className="w-4 h-4" />
                   <span className="text-xs">Time</span>
                 </div>
-                <p className="font-medium text-slate-800">{booking.time_slot}</p>
+                <p className="font-medium text-slate-800">
+                  {booking.time_slot === 'flexible' ? '8:00 AM - 6:00 PM (Flexible)' : booking.time_slot}
+                </p>
               </div>
               <div className="p-4 bg-slate-50 rounded-xl">
                 <div className="flex items-center gap-2 text-slate-500 mb-1">

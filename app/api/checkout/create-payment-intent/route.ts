@@ -175,7 +175,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Build description for Stripe
-    const description = `${packageData.name} - ${guests} guest(s) on ${date} at ${time}`;
+    const timeDisplay = time === 'flexible' ? '8AM-6PM (Flexible)' : time;
+    const description = `${packageData.name} - ${guests} guest(s) on ${date} at ${timeDisplay}`;
 
     // Create Payment Intent - card only
     const paymentIntent = await stripe.paymentIntents.create({

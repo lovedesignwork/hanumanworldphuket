@@ -24,6 +24,10 @@ const allBookablePackages = packages.filter(pkg =>
   ['world-a-plus', 'world-b-plus', 'world-c-plus', 'world-d-plus', 'zipline-32', 'zipline-18', 'zipline-10', 'roller-zipline', 'skywalk', 'slingshot'].includes(pkg.id)
 );
 
+// Packages that have flexible/open time (no specific time slot needed)
+// These can be done anytime between 8AM-6PM on the selected day
+const openTimePackages = ['roller-zipline', 'skywalk', 'slingshot', 'world-d-plus'];
+
 const addonPackages = packages.filter(pkg => 
   ['roller-zipline', 'skywalk', 'slingshot', 'luge'].includes(pkg.id)
 );
@@ -186,7 +190,11 @@ function BookingContent() {
     };
   }, [selectedPackage, guestCount, selectedAddons, promoAddonQuantities, privateTransfer, needPickup, nonPlayerCount]);
 
-  const isFormValid = selectedPackageId && selectedDate && selectedTime && 
+  // Check if selected package has open/flexible time
+  const isOpenTimePackage = selectedPackageId ? openTimePackages.includes(selectedPackageId) : false;
+
+  const isFormValid = selectedPackageId && selectedDate && 
+    (isOpenTimePackage || selectedTime) && // Time slot not required for open time packages
     (selectedPackage?.includesTransfer ? (needPickup ? hotelName.trim() : true) : true);
 
   // Handle proceed to checkout
@@ -199,11 +207,14 @@ function BookingContent() {
       .map(([id, qty]) => `${id}:${qty}`)
       .join(',');
     
+    // For open time packages, use "flexible" as the time value
+    const timeValue = isOpenTimePackage ? 'flexible' : selectedTime;
+    
     // Build URL params
     const params = new URLSearchParams({
       package: selectedPackageId!,
       date: selectedDate,
-      time: selectedTime,
+      time: timeValue,
       guests: guestCount.toString(),
       pickup: needPickup.toString(),
       hotel: hotelName,
@@ -536,7 +547,7 @@ function BookingContent() {
                           <span className="font-bold text-slate-800 text-xs sm:text-sm">Select Date & Time</span>
                         </div>
                         
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className={`grid grid-cols-1 ${!isOpenTimePackage ? 'sm:grid-cols-2' : ''} gap-4`}>
                           <div>
                             <label className="block text-[10px] uppercase tracking-wider text-slate-400 mb-1.5">Activity Date</label>
                             <CalendarPicker
@@ -546,25 +557,39 @@ function BookingContent() {
                             />
                           </div>
                           
-                          <div>
-                            <label className="block text-[10px] uppercase tracking-wider text-slate-400 mb-1.5">Time Slot</label>
-                            <div className="grid grid-cols-2 gap-2">
-                              {timeSlots.slice(0, 4).map((slot) => (
-                                <button
-                                  key={slot.time}
-                                  onClick={() => setSelectedTime(slot.time)}
-                                  disabled={!slot.available}
-                                  className={`h-10 sm:h-11 px-2 sm:px-4 rounded-lg border-2 text-xs sm:text-sm font-medium transition-all ${
-                                    selectedTime === slot.time
-                                      ? 'border-[#1a237e] bg-[#1a237e] text-white'
-                                      : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
-                                  } ${!slot.available && 'opacity-40 cursor-not-allowed'}`}
-                                >
-                                  {slot.label}
-                                </button>
-                              ))}
+                          {isOpenTimePackage ? (
+                            /* Open Time Message for Roller, Skywalk, Slingshot, World D+ */
+                            <div className="p-4 rounded-xl border-2 border-green-500/30 bg-green-500/10">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Clock className="w-4 h-4 text-green-600" />
+                                <span className="text-sm font-medium text-slate-800">Flexible Time</span>
+                              </div>
+                              <p className="text-xs text-slate-600">
+                                This activity is available <span className="font-semibold text-green-700">anytime between 8:00 AM - 6:00 PM</span> on your selected date. No specific time slot reservation needed.
+                              </p>
                             </div>
-                          </div>
+                          ) : (
+                            /* Time Slot Selection for Zipline packages */
+                            <div>
+                              <label className="block text-[10px] uppercase tracking-wider text-slate-400 mb-1.5">Time Slot</label>
+                              <div className="grid grid-cols-2 gap-2">
+                                {timeSlots.slice(0, 4).map((slot) => (
+                                  <button
+                                    key={slot.time}
+                                    onClick={() => setSelectedTime(slot.time)}
+                                    disabled={!slot.available}
+                                    className={`h-10 sm:h-11 px-2 sm:px-4 rounded-lg border-2 text-xs sm:text-sm font-medium transition-all ${
+                                      selectedTime === slot.time
+                                        ? 'border-[#1a237e] bg-[#1a237e] text-white'
+                                        : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                                    } ${!slot.available && 'opacity-40 cursor-not-allowed'}`}
+                                  >
+                                    {slot.label}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
 

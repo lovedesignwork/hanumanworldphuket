@@ -276,7 +276,9 @@ export default function AdminDashboard() {
                         <p className="text-sm text-slate-800">
                           {new Date(booking.activity_date).toLocaleDateString()}
                         </p>
-                        <p className="text-xs text-slate-500">{booking.time_slot}</p>
+                        <p className="text-xs text-slate-500">
+                          {booking.time_slot === 'flexible' ? '8AM-6PM (Flex)' : booking.time_slot}
+                        </p>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <p className="text-sm font-medium text-slate-800">

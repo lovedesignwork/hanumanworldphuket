@@ -94,7 +94,9 @@ function SuccessContent() {
                     </div>
                     <div>
                       <p className="text-xs text-slate-500">Time Slot</p>
-                      <p className="font-medium text-slate-800">{booking.time_slot}</p>
+                      <p className="font-medium text-slate-800">
+                        {booking.time_slot === 'flexible' ? '8:00 AM - 6:00 PM (Flexible)' : booking.time_slot}
+                      </p>
                     </div>
                   </div>
                   
