@@ -282,7 +282,7 @@ function CheckoutContent() {
   // Redirect if no package selected
   if (!selectedPackage) {
     return (
-      <main className="min-h-screen pt-20 bg-[#0d1259]">
+      <main className="min-h-screen bg-[#0d1259]">
         <Section className="relative overflow-hidden min-h-[calc(100vh-80px)]">
           <Container className="relative z-10">
             <div className="max-w-lg mx-auto text-center py-20">
@@ -302,7 +302,7 @@ function CheckoutContent() {
   }
 
   return (
-    <main className="pt-20 bg-[#0d1259]">
+    <main className="bg-[#0d1259]">
       <Section 
         className="relative overflow-hidden !pt-8"
         style={{ background: 'linear-gradient(135deg, #0d1259 0%, #1a237e 30%, #2a1a5c 60%, #0d1259 100%)', paddingBottom: '250px' }}
@@ -668,7 +668,7 @@ function CheckoutContent() {
 export default function CheckoutPage() {
   return (
     <Suspense fallback={
-      <main className="min-h-screen pt-20 bg-[#0d1259]">
+      <main className="min-h-screen bg-[#0d1259]">
         <Section className="relative overflow-hidden min-h-[calc(100vh-80px)]">
           <Container className="relative z-10">
             <div className="flex items-center justify-center py-20">

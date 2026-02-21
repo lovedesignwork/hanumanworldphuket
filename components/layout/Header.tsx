@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,22 +19,29 @@ const navigation = [
   { name: 'CONTACT', href: '/contact' },
 ];
 
+const NON_STICKY_ROUTES = ['/booking', '/checkout'];
+
 export function Header() {
+  const pathname = usePathname();
+  const isNonStickyRoute = NON_STICKY_ROUTES.some(route => pathname?.startsWith(route));
+  const sticky = !isNonStickyRoute;
+  
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
+    if (!sticky) return;
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [sticky]);
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'backdrop-blur-md shadow-lg' : 'backdrop-blur-md'
+      className={`${sticky ? 'fixed' : 'relative'} top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled && sticky ? 'backdrop-blur-md shadow-lg' : 'backdrop-blur-md'
       }`}
       style={{ backgroundColor: 'rgba(26, 35, 126, 0.95)' }}
     >
