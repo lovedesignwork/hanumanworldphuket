@@ -162,7 +162,7 @@ export function FeaturedPackages() {
                       )}
                     </div>
                     
-                    <Link href={`/booking?package=${worldAPlus.id}`} className="block relative z-10">
+                    <Link href={`/booking?package=${worldAPlus.id}`} scroll={true} className="block relative z-10">
                       <div className="p-[2px] rounded-xl transition-all duration-300 hover:scale-105 animated-silver-border-btn">
                         <button className={`relative z-10 w-full flex items-center justify-center gap-2 py-3 rounded-xl ${getButtonGradient(worldAPlus.id)} text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden`}>
                           <CheckCircle className="w-4 h-4 flex-shrink-0" />
@@ -288,7 +288,7 @@ export function FeaturedPackages() {
                         </div>
                       )}
                       
-                      <Link href={`/booking?package=${pkg.id}`} className="block mt-auto relative z-10">
+                      <Link href={`/booking?package=${pkg.id}`} scroll={true} className="block mt-auto relative z-10">
                         <div className={`p-[2px] rounded-xl transition-all duration-300 hover:scale-105 ${getButtonBorder()}`}>
                           <button className={`relative z-10 w-full flex items-center justify-center gap-2 sm:gap-3 py-3 sm:py-3.5 rounded-xl ${getButtonGradient(pkg.id)} text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden`}>
                             <CheckCircle className="w-4 h-4 sm:w-[19px] sm:h-[19px] flex-shrink-0" />
@@ -341,7 +341,7 @@ export function FeaturedPackages() {
                       {pkg.name}
                     </h3>
                     
-                    <Link href={`/booking?package=${pkg.id}`} className="block mt-auto relative z-10">
+                    <Link href={`/booking?package=${pkg.id}`} scroll={true} className="block mt-auto relative z-10">
                       <div className={`p-[2px] rounded-xl transition-all duration-300 hover:scale-105 ${getButtonBorder()}`}>
                         <button className={`relative z-10 w-full flex items-center justify-center gap-2 sm:gap-3 py-3 sm:py-3.5 rounded-xl ${getButtonGradient(pkg.id)} text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden`}>
                           <CheckCircle className="w-4 h-4 sm:w-[19px] sm:h-[19px] flex-shrink-0" />
@@ -425,7 +425,7 @@ export function FeaturedPackages() {
                       Phuket's first gravity luge! Race down 650m of jungle track. Combine with any zipline package for the ultimate adventure.
                     </p>
                     
-                    <Link href={`/booking?package=${lugePackage.id}`} className="block relative z-10">
+                    <Link href={`/booking?package=${lugePackage.id}`} scroll={true} className="block relative z-10">
                       <div className="p-[2px] rounded-xl transition-all duration-300 hover:scale-105 animated-silver-border-btn">
                         <button className={`relative z-10 w-full flex items-center justify-center gap-2 py-3 rounded-xl animated-btn-purple text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden`}>
                           <CheckCircle className="w-4 h-4 flex-shrink-0" />

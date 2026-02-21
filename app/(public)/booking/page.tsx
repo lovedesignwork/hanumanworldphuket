@@ -75,6 +75,11 @@ function BookingContent() {
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const selectedPackage = packages.find(p => p.id === selectedPackageId);
 
+  // Scroll to top on page load
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Auto-select package from URL parameter
   useEffect(() => {
     const packageParam = searchParams.get('package');
