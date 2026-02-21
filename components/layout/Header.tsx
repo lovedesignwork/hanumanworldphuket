@@ -33,8 +33,9 @@ export function Header() {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-primary/95 backdrop-blur-md shadow-lg' : 'bg-primary/95 backdrop-blur-md'
+        isScrolled ? 'backdrop-blur-md shadow-lg' : 'backdrop-blur-md'
       }`}
+      style={{ backgroundColor: 'rgba(26, 35, 126, 0.95)' }}
     >
       {/* Gradient overlay for menu visibility on hero */}
       {!isScrolled && (
@@ -107,7 +108,8 @@ export function Header() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-primary-dark/95 backdrop-blur-md"
+            className="lg:hidden backdrop-blur-md"
+            style={{ backgroundColor: 'rgba(26, 35, 126, 0.98)' }}
           >
             <nav className="px-4 py-4 space-y-2">
               {navigation.map((item) => (
@@ -115,7 +117,7 @@ export function Header() {
                   key={item.name}
                   href={item.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block font-[family-name:var(--font-oswald)] font-normal tracking-wide text-[18px] text-white/90 hover:text-accent py-2 uppercase"
+                  className="block font-[family-name:var(--font-oswald)] font-normal tracking-wide text-[30px] text-white/90 hover:text-accent py-2 uppercase"
                 >
                   {item.name}
                 </Link>
@@ -123,7 +125,7 @@ export function Header() {
               <Link
                 href="/booking"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="block mt-4 px-6 py-3 rounded-lg font-[family-name:var(--font-oswald)] font-normal tracking-wide text-[18px] text-white text-center uppercase"
+                className="block mt-4 px-6 py-3 rounded-lg font-[family-name:var(--font-oswald)] font-normal tracking-wide text-[30px] text-white text-center uppercase"
                 style={{
                   background: 'linear-gradient(135deg, #f97316, #ea580c)',
                   boxShadow: '0 0 20px rgba(249, 115, 22, 0.5)',
