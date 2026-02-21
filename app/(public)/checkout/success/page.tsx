@@ -46,28 +46,39 @@ interface BookingData {
 function SuccessContent() {
   const searchParams = useSearchParams();
   const bookingRef = searchParams.get('booking_ref');
+  const sessionId = searchParams.get('session_id');
   
   const [booking, setBooking] = useState<BookingData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchBookingDetails = async () => {
-      if (bookingRef) {
-        try {
-          const response = await fetch(`/api/bookings/${bookingRef}`);
-          if (response.ok) {
-            const data = await response.json();
-            setBooking(data);
-          }
-        } catch (error) {
-          console.error('Error fetching booking:', error);
+      if (!bookingRef || !sessionId) {
+        setError('Invalid booking link');
+        setLoading(false);
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/api/bookings/${bookingRef}?session_id=${sessionId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setBooking(data);
+        } else if (response.status === 401) {
+          setError('This booking confirmation link is not valid or has expired.');
+        } else {
+          setError('Booking not found');
         }
+      } catch (err) {
+        console.error('Error fetching booking:', err);
+        setError('Failed to load booking details');
       }
       setLoading(false);
     };
 
     fetchBookingDetails();
-  }, [bookingRef]);
+  }, [bookingRef, sessionId]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('th-TH', {
@@ -76,6 +87,41 @@ function SuccessContent() {
       minimumFractionDigits: 0,
     }).format(amount);
   };
+
+  if (error) {
+    return (
+      <main className="min-h-screen bg-[#1a237e]">
+        <div className="max-w-md mx-auto px-4 py-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-2xl shadow-xl p-8 text-center"
+          >
+            <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Mail className="w-7 h-7 text-red-500" />
+            </div>
+            <h1 className="text-xl font-bold text-slate-800 mb-2">Access Denied</h1>
+            <p className="text-sm text-slate-600 mb-6">{error}</p>
+            <p className="text-xs text-slate-500 mb-6">
+              If you made a booking, please check your email for the confirmation with the correct link, 
+              or contact our support team for assistance.
+            </p>
+            <Link href="/" className="block">
+              <button className="w-full px-5 py-3 bg-[#1a237e] hover:bg-[#0d1259] text-white font-semibold rounded-xl transition-colors text-sm">
+                Back to Home
+              </button>
+            </Link>
+            <div className="mt-4 pt-4 border-t border-slate-100">
+              <p className="text-[10px] text-slate-500 mb-2">Need help?</p>
+              <a href="mailto:support@hanumanworldphuket.com" className="text-xs text-[#1a237e] hover:underline">
+                support@hanumanworldphuket.com
+              </a>
+            </div>
+          </motion.div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-[#1a237e]">
