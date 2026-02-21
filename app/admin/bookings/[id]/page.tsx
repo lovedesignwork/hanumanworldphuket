@@ -12,23 +12,17 @@ import {
   Phone,
   MapPin,
   CreditCard,
-  RefreshCw,
-  Send,
   Loader2,
   CheckCircle,
   XCircle,
   AlertCircle,
   StickyNote,
   Save,
-  RotateCcw,
-  X,
-  DollarSign,
   History,
   Tag,
   Cloud
 } from 'lucide-react';
 import { adminGet, adminPost, adminPut } from '@/lib/auth/api-client';
-import { CustomSelect } from '@/components/ui';
 interface PromoCode {
   id: string;
   code: string;
@@ -89,19 +83,15 @@ export default function BookingDetailPage() {
   const router = useRouter();
   const [booking, setBooking] = useState<BookingDetail | null>(null);
   const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState(false);
   const [adminNotes, setAdminNotes] = useState('');
   const [savingNotes, setSavingNotes] = useState(false);
   const [notesSaved, setNotesSaved] = useState(false);
   
-  // Refund state
-  const [showRefundModal, setShowRefundModal] = useState(false);
-  const [refundAmount, setRefundAmount] = useState('');
-  const [refundReason, setRefundReason] = useState('customer_requested');
-  const [refundCustomReason, setRefundCustomReason] = useState('');
-  const [processingRefund, setProcessingRefund] = useState(false);
+  // Refund history (view only)
   const [refundHistory, setRefundHistory] = useState<RefundRecord[]>([]);
   const [loadingRefunds, setLoadingRefunds] = useState(false);
+  
+  // Sync to OneBooking
   const [syncingToOneBooking, setSyncingToOneBooking] = useState(false);
   const [syncMessage, setSyncMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -183,63 +173,6 @@ export default function BookingDetailPage() {
     } finally {
       setSyncingToOneBooking(false);
       setTimeout(() => setSyncMessage(null), 5000);
-    }
-  };
-
-  const processRefund = async () => {
-    if (!booking || !refundAmount) return;
-    
-    const amount = parseFloat(refundAmount);
-    if (isNaN(amount) || amount <= 0 || amount > maxRefundable) {
-      alert(`Please enter a valid amount between 1 and ${maxRefundable}`);
-      return;
-    }
-
-    setProcessingRefund(true);
-    try {
-      const reason = refundReason === 'other' ? refundCustomReason : refundReason;
-      
-      const response = await adminPost('/api/admin/refunds', {
-          bookingId: booking.id,
-          amount: amount,
-          reason: reason,
-        });
-
-      const result = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to process refund');
-      }
-
-      setBooking({ ...booking, status: result.bookingStatus });
-      await fetchRefundHistory();
-      setShowRefundModal(false);
-      setRefundAmount('');
-      setRefundReason('customer_requested');
-      setRefundCustomReason('');
-      
-      alert(`Refund of ฿${amount.toLocaleString()} processed successfully!`);
-    } catch (error) {
-      console.error('Refund error:', error);
-      alert(error instanceof Error ? error.message : 'Failed to process refund');
-    } finally {
-      setProcessingRefund(false);
-    }
-  };
-
-  const updateStatus = async (newStatus: string) => {
-    if (!booking) return;
-    setUpdating(true);
-    try {
-      const response = await adminPut(`/api/admin/bookings/${booking.id}`, { status: newStatus });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error);
-      
-      setBooking({ ...booking, status: newStatus });
-    } catch (error) {
-      console.error('Error updating status:', error);
-    } finally {
-      setUpdating(false);
     }
   };
 
@@ -514,53 +447,11 @@ export default function BookingDetailPage() {
           <div className="bg-white rounded-2xl shadow-sm p-6">
             <h2 className="text-lg font-semibold text-slate-800 mb-4">Actions</h2>
             <div className="space-y-3">
-              {booking.status === 'pending' && (
-                <button
-                  onClick={() => updateStatus('confirmed')}
-                  disabled={updating}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-xl transition-colors disabled:opacity-50"
-                >
-                  {updating ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                  Confirm Booking
-                </button>
-              )}
-
-              <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-[#1a237e] hover:bg-[#0d1259] text-white rounded-xl transition-colors">
-                <Send className="w-4 h-4" />
-                Send Confirmation Email
-              </button>
-
-              {(booking.status === 'pending' || booking.status === 'confirmed') && (
-                <button
-                  onClick={() => updateStatus('cancelled')}
-                  disabled={updating}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-red-300 text-red-600 hover:bg-red-50 rounded-xl transition-colors disabled:opacity-50"
-                >
-                  {updating ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
-                  Cancel Booking
-                </button>
-              )}
-
-              {['confirmed', 'completed', 'partially_refunded'].includes(booking.status) && 
-               booking.stripe_payment_intent_id && 
-               maxRefundable > 0 && (
-                <button 
-                  onClick={() => {
-                    setRefundAmount(maxRefundable.toString());
-                    setShowRefundModal(true);
-                  }}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-orange-300 text-orange-600 hover:bg-orange-50 rounded-xl transition-colors"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                  Process Refund
-                </button>
-              )}
-
               {/* Sync to OneBooking Button */}
               <button
                 onClick={syncToOneBooking}
                 disabled={syncingToOneBooking}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-blue-300 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-[#1a237e] hover:bg-[#0d1259] text-white rounded-xl transition-colors disabled:opacity-50"
               >
                 {syncingToOneBooking ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -579,6 +470,21 @@ export default function BookingDetailPage() {
                   {syncMessage.text}
                 </div>
               )}
+
+              {/* Info about editing */}
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                <p className="text-sm text-amber-800">
+                  <strong>Note:</strong> To edit bookings, confirm, cancel, send emails, or process refunds, please use the{' '}
+                  <a 
+                    href="https://onebooking-dashboard.vercel.app" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-[#1a237e] font-medium hover:underline"
+                  >
+                    OneBooking Dashboard
+                  </a>
+                </p>
+              </div>
             </div>
           </div>
 
@@ -651,119 +557,6 @@ export default function BookingDetailPage() {
         </div>
       </div>
 
-      {/* Refund Modal */}
-      {showRefundModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full">
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-slate-800">Process Refund</h2>
-              <button
-                onClick={() => setShowRefundModal(false)}
-                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-4">
-              <div className="p-4 bg-slate-50 rounded-xl">
-                <div className="flex justify-between text-sm mb-2">
-                  <span className="text-slate-600">Original Amount</span>
-                  <span className="font-medium text-slate-800">{formatCurrency(booking.total_amount)}</span>
-                </div>
-                {totalRefunded > 0 && (
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-slate-600">Already Refunded</span>
-                    <span className="font-medium text-orange-600">-{formatCurrency(totalRefunded)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-sm pt-2 border-t border-slate-200">
-                  <span className="text-slate-600">Max Refundable</span>
-                  <span className="font-semibold text-slate-800">{formatCurrency(maxRefundable)}</span>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Refund Amount (THB) *</label>
-                <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="number"
-                    value={refundAmount}
-                    onChange={(e) => setRefundAmount(e.target.value)}
-                    max={maxRefundable}
-                    className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#1a237e] text-slate-800"
-                  />
-                </div>
-                <div className="flex gap-2 mt-2">
-                  <button
-                    onClick={() => setRefundAmount(maxRefundable.toString())}
-                    className="text-xs px-2 py-1 bg-slate-100 text-slate-600 rounded hover:bg-slate-200"
-                  >
-                    Full Refund
-                  </button>
-                  <button
-                    onClick={() => setRefundAmount(Math.round(maxRefundable / 2).toString())}
-                    className="text-xs px-2 py-1 bg-slate-100 text-slate-600 rounded hover:bg-slate-200"
-                  >
-                    50%
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Reason *</label>
-                <CustomSelect
-                  value={refundReason}
-                  onChange={setRefundReason}
-                  options={[
-                    { value: 'customer_requested', label: 'Customer Requested' },
-                    { value: 'weather_force_majeure', label: 'Weather / Force Majeure' },
-                    { value: 'no_show_partial', label: 'No Show (Partial)' },
-                    { value: 'service_issue', label: 'Service Issue' },
-                    { value: 'duplicate', label: 'Duplicate Payment' },
-                    { value: 'other', label: 'Other' },
-                  ]}
-                />
-              </div>
-
-              {refundReason === 'other' && (
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Specify Reason</label>
-                  <input
-                    type="text"
-                    value={refundCustomReason}
-                    onChange={(e) => setRefundCustomReason(e.target.value)}
-                    placeholder="Enter reason..."
-                    className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#1a237e] text-slate-800"
-                  />
-                </div>
-              )}
-            </div>
-
-            <div className="p-6 border-t border-slate-100 flex gap-3">
-              <button
-                onClick={() => setShowRefundModal(false)}
-                className="flex-1 px-4 py-2 border border-slate-300 text-slate-600 rounded-xl hover:bg-slate-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={processRefund}
-                disabled={processingRefund || !refundAmount || parseFloat(refundAmount) <= 0}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-xl hover:bg-orange-600 disabled:opacity-50"
-              >
-                {processingRefund ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <RotateCcw className="w-4 h-4" />
-                )}
-                Process Refund
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
