@@ -357,7 +357,7 @@ function CheckoutContent() {
                         style={{ backgroundImage: `url(${selectedPackage.image})` }}
                       />
                       <div className="flex-grow">
-                        <h3 className="text-xl font-bold text-slate-800 font-[family-name:var(--font-oswald)]">
+                        <h3 className="text-[28px] font-semibold text-slate-800 font-[family-name:var(--font-oswald)]">
                           {selectedPackage.name}
                         </h3>
                         <p className="text-slate-500 text-sm">{selectedPackage.duration}</p>
