@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   Users, 
   Plus, 
@@ -37,6 +37,47 @@ interface AdminUser {
 }
 
 type ModalType = 'add' | 'edit' | 'delete' | null;
+type RoleType = 'admin' | 'staff' | 'writer';
+
+interface RoleOption {
+  value: RoleType;
+  label: string;
+  description: string;
+  icon: React.ReactNode;
+  color: string;
+  bgColor: string;
+  borderColor: string;
+}
+
+const roleOptions: RoleOption[] = [
+  {
+    value: 'admin',
+    label: 'Admin',
+    description: 'Full access to all features',
+    icon: <Shield className="w-5 h-5" />,
+    color: 'text-blue-600',
+    bgColor: 'bg-blue-50',
+    borderColor: 'border-blue-200 hover:border-blue-400',
+  },
+  {
+    value: 'staff',
+    label: 'Staff',
+    description: 'Limited access to operations',
+    icon: <UserCog className="w-5 h-5" />,
+    color: 'text-slate-600',
+    bgColor: 'bg-slate-50',
+    borderColor: 'border-slate-200 hover:border-slate-400',
+  },
+  {
+    value: 'writer',
+    label: 'Writer',
+    description: 'Blog management only',
+    icon: <PenTool className="w-5 h-5" />,
+    color: 'text-emerald-600',
+    bgColor: 'bg-emerald-50',
+    borderColor: 'border-emerald-200 hover:border-emerald-400',
+  },
+];
 
 export default function UsersPage() {
   const { adminUser: currentAdmin } = useAuth();
@@ -52,11 +93,24 @@ export default function UsersPage() {
   const [formEmail, setFormEmail] = useState('');
   const [formPassword, setFormPassword] = useState('');
   const [formFullName, setFormFullName] = useState('');
-  const [formRole, setFormRole] = useState<'admin' | 'staff' | 'writer'>('admin');
+  const [formRole, setFormRole] = useState<RoleType>('admin');
   const [showPassword, setShowPassword] = useState(false);
+  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
+  const roleDropdownRef = useRef<HTMLDivElement>(null);
 
   // Delete confirmation
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
+
+  // Close role dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (roleDropdownRef.current && !roleDropdownRef.current.contains(event.target as Node)) {
+        setRoleDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     fetchUsers();
@@ -83,6 +137,7 @@ export default function UsersPage() {
     setShowPassword(false);
     setDeleteConfirmText('');
     setSelectedUser(null);
+    setRoleDropdownOpen(false);
   };
 
   const openAddModal = () => {
@@ -93,7 +148,8 @@ export default function UsersPage() {
   const openEditModal = (user: AdminUser) => {
     setSelectedUser(user);
     setFormFullName(user.full_name || '');
-    setFormRole(user.role === 'superadmin' ? 'admin' : user.role as 'admin' | 'staff' | 'writer');
+    setFormRole(user.role === 'superadmin' ? 'admin' : user.role as RoleType);
+    setRoleDropdownOpen(false);
     setModalType('edit');
   };
 
@@ -502,24 +558,68 @@ export default function UsersPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Role *
                 </label>
-                <div className="relative">
-                  <select
-                    value={formRole}
-                    onChange={(e) => setFormRole(e.target.value as 'admin' | 'staff' | 'writer')}
-                    className="w-full px-4 py-2.5 pr-10 border border-slate-200 rounded-xl focus:outline-none focus:border-[#1a237e] text-slate-800 appearance-none bg-white cursor-pointer"
+                <div className="relative" ref={roleDropdownRef}>
+                  {/* Custom Dropdown Trigger */}
+                  <button
+                    type="button"
+                    onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
+                    className={`w-full flex items-center justify-between px-4 py-3 border-2 rounded-xl transition-all duration-200 ${
+                      roleDropdownOpen 
+                        ? 'border-[#1a237e] ring-2 ring-[#1a237e]/20' 
+                        : 'border-slate-200 hover:border-slate-300'
+                    } bg-white`}
                   >
-                    <option value="admin">Admin</option>
-                    <option value="staff">Staff</option>
-                    <option value="writer">Writer</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-lg ${roleOptions.find(r => r.value === formRole)?.bgColor}`}>
+                        <span className={roleOptions.find(r => r.value === formRole)?.color}>
+                          {roleOptions.find(r => r.value === formRole)?.icon}
+                        </span>
+                      </div>
+                      <div className="text-left">
+                        <p className="font-medium text-slate-800">{roleOptions.find(r => r.value === formRole)?.label}</p>
+                        <p className="text-xs text-slate-500">{roleOptions.find(r => r.value === formRole)?.description}</p>
+                      </div>
+                    </div>
+                    <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform duration-200 ${roleDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {/* Dropdown Options */}
+                  {roleDropdownOpen && (
+                    <div className="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
+                      {roleOptions.map((role) => (
+                        <button
+                          key={role.value}
+                          type="button"
+                          onClick={() => {
+                            setFormRole(role.value);
+                            setRoleDropdownOpen(false);
+                          }}
+                          className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${
+                            formRole === role.value 
+                              ? `${role.bgColor} border-l-4 border-l-current ${role.color}` 
+                              : 'hover:bg-slate-50 border-l-4 border-l-transparent'
+                          }`}
+                        >
+                          <div className={`p-2 rounded-lg ${role.bgColor}`}>
+                            <span className={role.color}>{role.icon}</span>
+                          </div>
+                          <div className="text-left flex-1">
+                            <p className={`font-medium ${formRole === role.value ? role.color : 'text-slate-800'}`}>
+                              {role.label}
+                            </p>
+                            <p className="text-xs text-slate-500">{role.description}</p>
+                          </div>
+                          {formRole === role.value && (
+                            <Check className={`w-5 h-5 ${role.color}`} />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <p className="text-xs text-slate-400 mt-1.5">
-                  <strong>Admin:</strong> Full access | <strong>Staff:</strong> Limited access | <strong>Writer:</strong> Blog only
-                </p>
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
@@ -611,24 +711,68 @@ export default function UsersPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                   Role *
                 </label>
-                <div className="relative">
-                  <select
-                    value={formRole}
-                    onChange={(e) => setFormRole(e.target.value as 'admin' | 'staff' | 'writer')}
-                    className="w-full px-4 py-2.5 pr-10 border border-slate-200 rounded-xl focus:outline-none focus:border-[#1a237e] text-slate-800 appearance-none bg-white cursor-pointer"
+                <div className="relative" ref={roleDropdownRef}>
+                  {/* Custom Dropdown Trigger */}
+                  <button
+                    type="button"
+                    onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
+                    className={`w-full flex items-center justify-between px-4 py-3 border-2 rounded-xl transition-all duration-200 ${
+                      roleDropdownOpen 
+                        ? 'border-[#1a237e] ring-2 ring-[#1a237e]/20' 
+                        : 'border-slate-200 hover:border-slate-300'
+                    } bg-white`}
                   >
-                    <option value="admin">Admin</option>
-                    <option value="staff">Staff</option>
-                    <option value="writer">Writer</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-lg ${roleOptions.find(r => r.value === formRole)?.bgColor}`}>
+                        <span className={roleOptions.find(r => r.value === formRole)?.color}>
+                          {roleOptions.find(r => r.value === formRole)?.icon}
+                        </span>
+                      </div>
+                      <div className="text-left">
+                        <p className="font-medium text-slate-800">{roleOptions.find(r => r.value === formRole)?.label}</p>
+                        <p className="text-xs text-slate-500">{roleOptions.find(r => r.value === formRole)?.description}</p>
+                      </div>
+                    </div>
+                    <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform duration-200 ${roleDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {/* Dropdown Options */}
+                  {roleDropdownOpen && (
+                    <div className="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
+                      {roleOptions.map((role) => (
+                        <button
+                          key={role.value}
+                          type="button"
+                          onClick={() => {
+                            setFormRole(role.value);
+                            setRoleDropdownOpen(false);
+                          }}
+                          className={`w-full flex items-center gap-3 px-4 py-3 transition-colors ${
+                            formRole === role.value 
+                              ? `${role.bgColor} border-l-4 border-l-current ${role.color}` 
+                              : 'hover:bg-slate-50 border-l-4 border-l-transparent'
+                          }`}
+                        >
+                          <div className={`p-2 rounded-lg ${role.bgColor}`}>
+                            <span className={role.color}>{role.icon}</span>
+                          </div>
+                          <div className="text-left flex-1">
+                            <p className={`font-medium ${formRole === role.value ? role.color : 'text-slate-800'}`}>
+                              {role.label}
+                            </p>
+                            <p className="text-xs text-slate-500">{role.description}</p>
+                          </div>
+                          {formRole === role.value && (
+                            <Check className={`w-5 h-5 ${role.color}`} />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <p className="text-xs text-slate-400 mt-1.5">
-                  <strong>Admin:</strong> Full access | <strong>Staff:</strong> Limited access | <strong>Writer:</strong> Blog only
-                </p>
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
