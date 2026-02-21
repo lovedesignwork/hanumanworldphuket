@@ -111,13 +111,13 @@ export function Header() {
             className="lg:hidden backdrop-blur-md"
             style={{ backgroundColor: 'rgba(26, 35, 126, 0.98)' }}
           >
-            <nav className="px-4 py-4 space-y-2">
+            <nav className="px-4 py-3 space-y-1">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block font-[family-name:var(--font-oswald)] font-normal tracking-wide text-[30px] text-white/90 hover:text-accent py-2 uppercase"
+                  className="block font-[family-name:var(--font-oswald)] font-normal tracking-wide text-[26px] text-white/90 hover:text-accent py-[5px] uppercase"
                 >
                   {item.name}
                 </Link>
@@ -125,7 +125,7 @@ export function Header() {
               <Link
                 href="/booking"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="block mt-4 px-6 py-3 rounded-lg font-[family-name:var(--font-oswald)] font-normal tracking-wide text-[30px] text-white text-center uppercase"
+                className="block mt-3 px-6 py-2.5 rounded-lg font-[family-name:var(--font-oswald)] font-normal tracking-wide text-[26px] text-white text-center uppercase"
                 style={{
                   background: 'linear-gradient(135deg, #f97316, #ea580c)',
                   boxShadow: '0 0 20px rgba(249, 115, 22, 0.5)',
