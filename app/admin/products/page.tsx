@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import ImageUploader from '@/components/admin/ImageUploader';
 import { adminGet, adminPost, adminPut, adminPatch } from '@/lib/auth/api-client';
+import { CustomSelect } from '@/components/ui';
 
 interface PackageData {
   id: string;
@@ -239,15 +240,11 @@ export default function ProductsPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
-              <select
+              <CustomSelect
                 value={newPackage.category}
-                onChange={(e) => setNewPackage({ ...newPackage, category: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1a237e] text-slate-800"
-              >
-                {CATEGORIES.map((cat) => (
-                  <option key={cat.value} value={cat.value}>{cat.label}</option>
-                ))}
-              </select>
+                onChange={(value) => setNewPackage({ ...newPackage, category: value })}
+                options={CATEGORIES.map((cat) => ({ value: cat.value, label: cat.label }))}
+              />
             </div>
             <div className="flex items-center gap-6">
               <label className="flex items-center gap-2 cursor-pointer">
@@ -342,15 +339,13 @@ export default function ProductsPage() {
                       />
                     </td>
                     <td className="px-6 py-4">
-                      <select
+                      <CustomSelect
                         value={editForm.category}
-                        onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
-                        className="px-2 py-1 border border-slate-200 rounded text-slate-800"
-                      >
-                        {CATEGORIES.map((cat) => (
-                          <option key={cat.value} value={cat.value}>{cat.label}</option>
-                        ))}
-                      </select>
+                        onChange={(value) => setEditForm({ ...editForm, category: value })}
+                        options={CATEGORIES.map((cat) => ({ value: cat.value, label: cat.label }))}
+                        size="sm"
+                        className="w-40"
+                      />
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-col gap-1">
@@ -373,14 +368,16 @@ export default function ProductsPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <select
+                      <CustomSelect
                         value={editForm.is_active ? 'active' : 'inactive'}
-                        onChange={(e) => setEditForm({ ...editForm, is_active: e.target.value === 'active' })}
-                        className="px-2 py-1 border border-slate-200 rounded text-sm text-slate-800"
-                      >
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                      </select>
+                        onChange={(value) => setEditForm({ ...editForm, is_active: value === 'active' })}
+                        options={[
+                          { value: 'active', label: 'Active' },
+                          { value: 'inactive', label: 'Inactive' },
+                        ]}
+                        size="sm"
+                        className="w-28"
+                      />
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">

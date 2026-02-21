@@ -28,6 +28,7 @@ import {
   Cloud
 } from 'lucide-react';
 import { adminGet, adminPost, adminPut } from '@/lib/auth/api-client';
+import { CustomSelect } from '@/components/ui';
 interface PromoCode {
   id: string;
   code: string;
@@ -712,18 +713,18 @@ export default function BookingDetailPage() {
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Reason *</label>
-                <select
+                <CustomSelect
                   value={refundReason}
-                  onChange={(e) => setRefundReason(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#1a237e] text-slate-800"
-                >
-                  <option value="customer_requested">Customer Requested</option>
-                  <option value="weather_force_majeure">Weather / Force Majeure</option>
-                  <option value="no_show_partial">No Show (Partial)</option>
-                  <option value="service_issue">Service Issue</option>
-                  <option value="duplicate">Duplicate Payment</option>
-                  <option value="other">Other</option>
-                </select>
+                  onChange={setRefundReason}
+                  options={[
+                    { value: 'customer_requested', label: 'Customer Requested' },
+                    { value: 'weather_force_majeure', label: 'Weather / Force Majeure' },
+                    { value: 'no_show_partial', label: 'No Show (Partial)' },
+                    { value: 'service_issue', label: 'Service Issue' },
+                    { value: 'duplicate', label: 'Duplicate Payment' },
+                    { value: 'other', label: 'Other' },
+                  ]}
+                />
               </div>
 
               {refundReason === 'other' && (

@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { adminGet, adminFetch } from '@/lib/auth/api-client';
 import { useAuth } from '@/contexts/AuthContext';
+import { CustomSelect } from '@/components/ui';
 
 interface Booking {
   id: string;
@@ -328,20 +329,18 @@ export default function BookingsPage() {
                   className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#1a237e] text-slate-800 placeholder:text-slate-500"
                 />
               </div>
-              <select
+              <CustomSelect
                 value={statusFilter}
-                onChange={(e) => {
-                  setStatusFilter(e.target.value);
+                onChange={(value) => {
+                  setStatusFilter(value);
                   setPage(1);
                 }}
-                className="px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#1a237e] text-slate-800"
-              >
-                {STATUS_OPTIONS.map((status) => (
-                  <option key={status} value={status}>
-                    {status === 'all' ? 'All Status' : status.charAt(0).toUpperCase() + status.slice(1)}
-                  </option>
-                ))}
-              </select>
+                options={STATUS_OPTIONS.map((status) => ({
+                  value: status,
+                  label: status === 'all' ? 'All Status' : status.charAt(0).toUpperCase() + status.slice(1),
+                }))}
+                className="w-40"
+              />
             </div>
             
             {/* Row 2: Date Range Filter */}
@@ -684,20 +683,19 @@ export default function BookingsPage() {
                 </p>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-slate-500">Show:</span>
-                  <select
-                    value={pageSize}
-                    onChange={(e) => {
-                      setPageSize(Number(e.target.value));
+                  <CustomSelect
+                    value={String(pageSize)}
+                    onChange={(value) => {
+                      setPageSize(Number(value));
                       setPage(1);
                     }}
-                    className="px-2 py-1 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-[#1a237e] text-slate-800"
-                  >
-                    {PAGE_SIZE_OPTIONS.map((size) => (
-                      <option key={size} value={size}>
-                        {size}
-                      </option>
-                    ))}
-                  </select>
+                    options={PAGE_SIZE_OPTIONS.map((size) => ({
+                      value: String(size),
+                      label: String(size),
+                    }))}
+                    size="sm"
+                    className="w-20"
+                  />
                   <span className="text-sm text-slate-500">per page</span>
                 </div>
               </div>

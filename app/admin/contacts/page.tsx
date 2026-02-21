@@ -18,6 +18,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { adminGet, adminPut, adminDelete } from '@/lib/auth/api-client';
+import { CustomSelect } from '@/components/ui';
 
 interface ContactSubmission {
   id: string;
@@ -164,20 +165,18 @@ export default function ContactsPage() {
                 className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#1a237e] text-slate-800 placeholder:text-slate-500"
               />
             </div>
-            <select
+            <CustomSelect
               value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
+              onChange={(value) => {
+                setStatusFilter(value);
                 setPage(1);
               }}
-              className="px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#1a237e] text-slate-800 bg-white"
-            >
-              {STATUS_OPTIONS.map((status) => (
-                <option key={status} value={status}>
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                </option>
-              ))}
-            </select>
+              options={STATUS_OPTIONS.map((status) => ({
+                value: status,
+                label: status.charAt(0).toUpperCase() + status.slice(1),
+              }))}
+              className="w-36"
+            />
             <button
               onClick={handleSearch}
               className="px-4 py-2 bg-[#1a237e] text-white rounded-xl hover:bg-[#0d1259] transition-colors"

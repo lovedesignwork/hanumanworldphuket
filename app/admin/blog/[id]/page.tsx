@@ -23,6 +23,7 @@ import SEOPanel from '@/components/admin/blog/SEOPanel';
 import ImageUpload from '@/components/admin/blog/ImageUpload';
 import { useAuth } from '@/contexts/AuthContext';
 import { adminGet, adminPut, adminDelete } from '@/lib/auth/api-client';
+import { CustomSelect } from '@/components/ui';
 
 const RichTextEditor = dynamic(
   () => import('@/components/admin/blog/RichTextEditor'),
@@ -508,16 +509,12 @@ export default function EditBlogPostPage({ params }: { params: Promise<{ id: str
                 <Folder className="w-4 h-4 inline mr-1" />
                 Category
               </label>
-              <select
+              <CustomSelect
                 value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-slate-800 text-sm focus:outline-none focus:border-[#1a237e]"
-              >
-                <option value="">Select category</option>
-                {CATEGORIES.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
+                onChange={setCategory}
+                placeholder="Select category"
+                options={CATEGORIES.map(cat => ({ value: cat, label: cat }))}
+              />
             </div>
 
             {/* Tags */}

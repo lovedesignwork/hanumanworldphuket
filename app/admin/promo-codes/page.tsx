@@ -15,6 +15,7 @@ import {
   Users
 } from 'lucide-react';
 import { adminGet, adminPost, adminPut, adminDelete } from '@/lib/auth/api-client';
+import { CustomSelect } from '@/components/ui';
 
 interface PromoCode {
   id: string;
@@ -232,14 +233,14 @@ export default function PromoCodesPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Discount Type</label>
-              <select
+              <CustomSelect
                 value={formData.discount_type}
-                onChange={(e) => setFormData({ ...formData, discount_type: e.target.value as 'percentage' | 'fixed' })}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#1a237e] text-slate-800"
-              >
-                <option value="percentage">Percentage (%)</option>
-                <option value="fixed">Fixed Amount (THB)</option>
-              </select>
+                onChange={(value) => setFormData({ ...formData, discount_type: value as 'percentage' | 'fixed' })}
+                options={[
+                  { value: 'percentage', label: 'Percentage (%)' },
+                  { value: 'fixed', label: 'Fixed Amount (THB)' },
+                ]}
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">

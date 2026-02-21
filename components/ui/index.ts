@@ -5,3 +5,4 @@ export * from './Container';
 export * from './Badge';
 export * from './SectionHeader';
 export * from './CalendarPicker';
+export * from './CustomSelect';

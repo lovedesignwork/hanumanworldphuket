@@ -15,6 +15,7 @@ import {
   BarChart3
 } from 'lucide-react';
 import { adminGet, adminPost } from '@/lib/auth/api-client';
+import { CustomSelect } from '@/components/ui';
 
 interface GeneralSettings {
   siteName: string;
@@ -171,27 +172,27 @@ export default function SettingsPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Timezone</label>
-              <select
+              <CustomSelect
                 value={general.timezone}
-                onChange={(e) => setGeneral({ ...general, timezone: e.target.value })}
-                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#1a237e] text-slate-800"
-              >
-                <option value="Asia/Bangkok">Asia/Bangkok (GMT+7)</option>
-                <option value="UTC">UTC</option>
-                <option value="Asia/Singapore">Asia/Singapore (GMT+8)</option>
-              </select>
+                onChange={(value) => setGeneral({ ...general, timezone: value })}
+                options={[
+                  { value: 'Asia/Bangkok', label: 'Asia/Bangkok (GMT+7)' },
+                  { value: 'UTC', label: 'UTC' },
+                  { value: 'Asia/Singapore', label: 'Asia/Singapore (GMT+8)' },
+                ]}
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Currency</label>
-              <select
+              <CustomSelect
                 value={general.currency}
-                onChange={(e) => setGeneral({ ...general, currency: e.target.value })}
-                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#1a237e] text-slate-800"
-              >
-                <option value="THB">Thai Baht (THB)</option>
-                <option value="USD">US Dollar (USD)</option>
-                <option value="EUR">Euro (EUR)</option>
-              </select>
+                onChange={(value) => setGeneral({ ...general, currency: value })}
+                options={[
+                  { value: 'THB', label: 'Thai Baht (THB)' },
+                  { value: 'USD', label: 'US Dollar (USD)' },
+                  { value: 'EUR', label: 'Euro (EUR)' },
+                ]}
+              />
             </div>
           </div>
         </div>

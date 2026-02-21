@@ -18,6 +18,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { adminGet, adminDelete } from '@/lib/auth/api-client';
+import { CustomSelect } from '@/components/ui';
 interface BlogPost {
   id: string;
   title: string;
@@ -194,26 +195,26 @@ export default function BlogListPage() {
               />
             </div>
             <div className="flex gap-3">
-              <select
+              <CustomSelect
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-4 py-2 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-[#1a237e]"
-              >
-                <option value="all">All Status</option>
-                <option value="published">Published</option>
-                <option value="draft">Draft</option>
-                <option value="scheduled">Scheduled</option>
-              </select>
-              <select
+                onChange={setStatusFilter}
+                options={[
+                  { value: 'all', label: 'All Status' },
+                  { value: 'published', label: 'Published' },
+                  { value: 'draft', label: 'Draft' },
+                  { value: 'scheduled', label: 'Scheduled' },
+                ]}
+                className="w-40"
+              />
+              <CustomSelect
                 value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="px-4 py-2 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:border-[#1a237e]"
-              >
-                <option value="all">All Categories</option>
-                {categories.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
+                onChange={setCategoryFilter}
+                options={[
+                  { value: 'all', label: 'All Categories' },
+                  ...categories.map(cat => ({ value: cat, label: cat })),
+                ]}
+                className="w-44"
+              />
             </div>
           </div>
         </div>
