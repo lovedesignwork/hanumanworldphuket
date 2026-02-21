@@ -18,12 +18,13 @@ const footerLinks = {
     { name: 'Blog', href: '/blog' },
     { name: 'FAQ', href: '/faq' },
     { name: 'Contact', href: '/contact' },
-    { name: 'Careers', href: '/careers' },
+    { name: 'Safety Info', href: '/safety' },
   ],
   legal: [
     { name: 'Privacy Policy', href: '/privacy' },
-    { name: 'Terms of Service', href: '/terms' },
+    { name: 'Terms & Conditions', href: '/terms' },
     { name: 'Refund Policy', href: '/refund' },
+    { name: 'Cookie Policy', href: '/cookies' },
   ],
 };
 
@@ -142,8 +143,25 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="py-6 border-t border-white/10 text-center text-foreground-muted text-sm">
-          <p>&copy; {new Date().getFullYear()} Hanuman World Phuket. All rights reserved.</p>
+        {/* Legal Links */}
+        <div className="py-6 border-t border-white/10">
+          <div className="flex flex-wrap justify-center gap-4 mb-4">
+            {footerLinks.legal.map((link) => (
+              <Link
+                key={link.name}
+                href={link.href}
+                className="text-foreground-muted hover:text-accent transition-colors text-sm"
+              >
+                {link.name}
+              </Link>
+            ))}
+          </div>
+          <p className="text-center text-foreground-muted text-sm">
+            &copy; {new Date().getFullYear()} Sky World Adventures Co., Ltd. (Hanuman World). All rights reserved.
+          </p>
+          <p className="text-center text-foreground-muted text-xs mt-1">
+            Online payments processed by Chamnanthang Co., Ltd. (ONEBOOKING)
+          </p>
         </div>
       </Container>
     </footer>
