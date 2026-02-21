@@ -178,11 +178,11 @@ export default function SlingshotPage() {
                   </div>
                 </div>
                 
-                <Link href={`/booking?package=${pkg.id}`} className="flex-shrink-0">
+                <Link href={`/booking?package=${pkg.id}`} className="flex-shrink-0 w-full sm:w-auto">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="px-8 py-4 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-lg flex items-center gap-2 shadow-lg shadow-orange-500/30"
+                    className="w-full sm:w-auto px-8 py-5 sm:py-4 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-lg sm:text-lg flex items-center justify-center gap-2 shadow-lg shadow-orange-500/30"
                   >
                     BOOK NOW
                     <ChevronRight className="w-5 h-5" />

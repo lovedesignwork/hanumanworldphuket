@@ -164,9 +164,9 @@ export function FeaturedPackages() {
                     
                     <Link href={`/booking?package=${worldAPlus.id}`} scroll={true} className="block relative z-10">
                       <div className="p-[2px] rounded-xl transition-all duration-300 hover:scale-105 animated-silver-border-btn">
-                        <button className={`relative z-10 w-full flex items-center justify-center gap-2 py-3 rounded-xl ${getButtonGradient(worldAPlus.id)} text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden`}>
-                          <CheckCircle className="w-4 h-4 flex-shrink-0" />
-                          <span className="font-[family-name:var(--font-oswald)] font-normal tracking-wide text-xs sm:text-sm md:text-[19px]">
+                        <button className={`relative z-10 w-full flex items-center justify-center gap-2 py-4 sm:py-3 rounded-xl ${getButtonGradient(worldAPlus.id)} text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden`}>
+                          <CheckCircle className="w-5 h-5 sm:w-4 sm:h-4 flex-shrink-0" />
+                          <span className="font-[family-name:var(--font-oswald)] font-normal tracking-wide text-base sm:text-sm md:text-[19px]">
                             BOOK NOW: {formatPrice(worldAPlus.price)} / PERSON
                           </span>
                         </button>
@@ -290,9 +290,9 @@ export function FeaturedPackages() {
                       
                       <Link href={`/booking?package=${pkg.id}`} scroll={true} className="block mt-auto relative z-10">
                         <div className={`p-[2px] rounded-xl transition-all duration-300 hover:scale-105 ${getButtonBorder()}`}>
-                          <button className={`relative z-10 w-full flex items-center justify-center gap-2 sm:gap-3 py-3 sm:py-3.5 rounded-xl ${getButtonGradient(pkg.id)} text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden`}>
-                            <CheckCircle className="w-4 h-4 sm:w-[19px] sm:h-[19px] flex-shrink-0" />
-                            <span className="font-[family-name:var(--font-oswald)] font-normal tracking-wide text-xs sm:text-sm md:text-[19px]">
+                          <button className={`relative z-10 w-full flex items-center justify-center gap-2 sm:gap-3 py-4 sm:py-3.5 rounded-xl ${getButtonGradient(pkg.id)} text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden`}>
+                            <CheckCircle className="w-5 h-5 sm:w-[19px] sm:h-[19px] flex-shrink-0" />
+                            <span className="font-[family-name:var(--font-oswald)] font-normal tracking-wide text-base sm:text-sm md:text-[19px]">
                               BOOK: {formatPrice(pkg.price)}
                             </span>
                           </button>
@@ -343,9 +343,9 @@ export function FeaturedPackages() {
                     
                     <Link href={`/booking?package=${pkg.id}`} scroll={true} className="block mt-auto relative z-10">
                       <div className={`p-[2px] rounded-xl transition-all duration-300 hover:scale-105 ${getButtonBorder()}`}>
-                        <button className={`relative z-10 w-full flex items-center justify-center gap-2 sm:gap-3 py-3 sm:py-3.5 rounded-xl ${getButtonGradient(pkg.id)} text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden`}>
-                          <CheckCircle className="w-4 h-4 sm:w-[19px] sm:h-[19px] flex-shrink-0" />
-                          <span className="font-[family-name:var(--font-oswald)] font-normal tracking-wide text-xs sm:text-sm md:text-[19px]">
+                        <button className={`relative z-10 w-full flex items-center justify-center gap-2 sm:gap-3 py-4 sm:py-3.5 rounded-xl ${getButtonGradient(pkg.id)} text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden`}>
+                          <CheckCircle className="w-5 h-5 sm:w-[19px] sm:h-[19px] flex-shrink-0" />
+                          <span className="font-[family-name:var(--font-oswald)] font-normal tracking-wide text-base sm:text-sm md:text-[19px]">
                             BOOK: {formatPrice(pkg.price)}
                           </span>
                         </button>
@@ -427,9 +427,9 @@ export function FeaturedPackages() {
                     
                     <Link href={`/booking?package=${lugePackage.id}`} scroll={true} className="block relative z-10">
                       <div className="p-[2px] rounded-xl transition-all duration-300 hover:scale-105 animated-silver-border-btn">
-                        <button className={`relative z-10 w-full flex items-center justify-center gap-2 py-3 rounded-xl animated-btn-purple text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden`}>
-                          <CheckCircle className="w-4 h-4 flex-shrink-0" />
-                          <span className="font-[family-name:var(--font-oswald)] font-normal tracking-wide text-xs sm:text-sm md:text-[19px]">
+                        <button className={`relative z-10 w-full flex items-center justify-center gap-2 py-4 sm:py-3 rounded-xl animated-btn-purple text-white transition-all duration-300 shadow-lg hover:shadow-2xl overflow-hidden`}>
+                          <CheckCircle className="w-5 h-5 sm:w-4 sm:h-4 flex-shrink-0" />
+                          <span className="font-[family-name:var(--font-oswald)] font-normal tracking-wide text-base sm:text-sm md:text-[19px]">
                             BOOK NOW: {formatPrice(lugePackage.price)} / PERSON
                           </span>
                         </button>
