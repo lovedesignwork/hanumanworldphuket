@@ -1,4 +1,4 @@
-import { resend, EMAIL_FROM, EMAIL_CONTACT } from './resend';
+import { resend, EMAIL_FROM, parseEmails, getNotificationSettings } from './resend';
 import ContactFormEmail from './templates/ContactFormEmail';
 import ContactAutoReply from './templates/ContactAutoReply';
 
@@ -11,6 +11,20 @@ interface ContactFormData {
 }
 
 export async function sendContactFormEmail(data: ContactFormData) {
+  const settings = await getNotificationSettings();
+  
+  if (!settings.emailNotifications) {
+    console.log('Email notifications are disabled');
+    return { success: true, skipped: true };
+  }
+
+  const recipients = parseEmails(settings.contactNotificationEmails);
+  
+  if (recipients.length === 0) {
+    console.log('No contact notification recipients configured');
+    return { success: true, skipped: true };
+  }
+
   const submittedAt = new Date().toLocaleString('en-US', {
     timeZone: 'Asia/Bangkok',
     dateStyle: 'full',
@@ -18,10 +32,10 @@ export async function sendContactFormEmail(data: ContactFormData) {
   });
 
   try {
-    // Send notification to admin
+    // Send notification to admin(s)
     const adminResult = await resend.emails.send({
       from: EMAIL_FROM,
-      to: EMAIL_CONTACT,
+      to: recipients,
       replyTo: data.email,
       subject: `[Contact Form] ${data.subject} - from ${data.name}`,
       react: ContactFormEmail({
@@ -39,6 +53,8 @@ export async function sendContactFormEmail(data: ContactFormData) {
       throw new Error(adminResult.error.message);
     }
 
+    console.log(`Contact form notification sent to ${recipients.join(', ')}`);
+
     // Send auto-reply to customer
     const customerResult = await resend.emails.send({
       from: EMAIL_FROM,
@@ -52,7 +68,6 @@ export async function sendContactFormEmail(data: ContactFormData) {
 
     if (customerResult.error) {
       console.error('Error sending auto-reply:', customerResult.error);
-      // Don't throw here - admin notification was sent successfully
     }
 
     return { success: true, adminEmailId: adminResult.data?.id };

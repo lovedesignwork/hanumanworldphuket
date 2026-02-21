@@ -1,4 +1,4 @@
-import { resend, EMAIL_FROM } from './resend';
+import { resend, EMAIL_FROM, getNotificationSettings } from './resend';
 import BookingConfirmationEmail from './templates/BookingConfirmation';
 
 interface BookingData {
@@ -18,6 +18,13 @@ interface BookingData {
 }
 
 export async function sendBookingConfirmationEmail(data: BookingData) {
+  const settings = await getNotificationSettings();
+  
+  if (!settings.emailNotifications || !settings.sendCustomerConfirmation) {
+    console.log('Customer confirmation emails are disabled');
+    return { success: true, skipped: true };
+  }
+
   try {
     const { data: result, error } = await resend.emails.send({
       from: EMAIL_FROM,

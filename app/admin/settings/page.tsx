@@ -30,7 +30,9 @@ interface ContactSettings {
 
 interface NotificationSettings {
   emailNotifications: boolean;
-  adminEmails: string;
+  bookingNotificationEmails: string;
+  contactNotificationEmails: string;
+  sendCustomerConfirmation: boolean;
 }
 
 interface TrackingSettings {
@@ -60,7 +62,9 @@ export default function SettingsPage() {
 
   const [notifications, setNotifications] = useState<NotificationSettings>({
     emailNotifications: true,
-    adminEmails: 'admin@hanumanworldphuket.com',
+    bookingNotificationEmails: 'booking@hanumanworldphuket.com',
+    contactNotificationEmails: 'contact@hanumanworldphuket.com',
+    sendCustomerConfirmation: true,
   });
 
   const [tracking, setTracking] = useState<TrackingSettings>({
@@ -249,40 +253,79 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm p-6">
+        <div className="bg-white rounded-2xl shadow-sm p-6 lg:col-span-2">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 bg-[#1a237e]/10 rounded-xl flex items-center justify-center">
               <Bell className="w-5 h-5 text-[#1a237e]" />
             </div>
             <div>
-              <h2 className="font-semibold text-slate-800">Notifications</h2>
-              <p className="text-sm text-slate-500">Email notification settings</p>
+              <h2 className="font-semibold text-slate-800">Email Notifications</h2>
+              <p className="text-sm text-slate-500">Configure email recipients for bookings and contact submissions</p>
             </div>
           </div>
 
-          <div className="space-y-4">
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={notifications.emailNotifications}
-                onChange={(e) => setNotifications({ ...notifications, emailNotifications: e.target.checked })}
-                className="w-5 h-5 rounded border-slate-300"
-              />
-              <div>
-                <p className="font-medium text-slate-700">Email Notifications</p>
-                <p className="text-sm text-slate-500">Receive emails for new bookings</p>
+          <div className="space-y-6">
+            <div className="flex items-center gap-6">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={notifications.emailNotifications}
+                  onChange={(e) => setNotifications({ ...notifications, emailNotifications: e.target.checked })}
+                  className="w-5 h-5 rounded border-slate-300"
+                />
+                <div>
+                  <p className="font-medium text-slate-700">Enable Email Notifications</p>
+                  <p className="text-sm text-slate-500">Send emails for new bookings and contacts</p>
+                </div>
+              </label>
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={notifications.sendCustomerConfirmation}
+                  onChange={(e) => setNotifications({ ...notifications, sendCustomerConfirmation: e.target.checked })}
+                  className="w-5 h-5 rounded border-slate-300"
+                />
+                <div>
+                  <p className="font-medium text-slate-700">Customer Confirmation Emails</p>
+                  <p className="text-sm text-slate-500">Send booking confirmation to customers</p>
+                </div>
+              </label>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="p-4 bg-blue-50 rounded-xl border border-blue-200">
+                <div className="flex items-center gap-2 mb-3">
+                  <Mail className="w-4 h-4 text-blue-600" />
+                  <label className="text-sm font-medium text-blue-800">Booking Notification Recipients</label>
+                </div>
+                <textarea
+                  value={notifications.bookingNotificationEmails}
+                  onChange={(e) => setNotifications({ ...notifications, bookingNotificationEmails: e.target.value })}
+                  className="w-full px-4 py-2 border border-blue-200 rounded-xl focus:outline-none focus:border-[#1a237e] text-slate-800 placeholder:text-slate-400 bg-white"
+                  placeholder="booking@example.com, manager@example.com"
+                  rows={2}
+                />
+                <p className="text-xs text-blue-600 mt-2">
+                  These email addresses will receive notifications when a new booking is made. Separate multiple emails with commas.
+                </p>
               </div>
-            </label>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Admin Email Addresses</label>
-              <input
-                type="text"
-                value={notifications.adminEmails}
-                onChange={(e) => setNotifications({ ...notifications, adminEmails: e.target.value })}
-                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#1a237e] text-slate-800 placeholder:text-slate-400"
-                placeholder="email1@example.com, email2@example.com"
-              />
-              <p className="text-xs text-slate-400 mt-1">Separate multiple emails with commas</p>
+
+              <div className="p-4 bg-green-50 rounded-xl border border-green-200">
+                <div className="flex items-center gap-2 mb-3">
+                  <Mail className="w-4 h-4 text-green-600" />
+                  <label className="text-sm font-medium text-green-800">Contact Form Recipients</label>
+                </div>
+                <textarea
+                  value={notifications.contactNotificationEmails}
+                  onChange={(e) => setNotifications({ ...notifications, contactNotificationEmails: e.target.value })}
+                  className="w-full px-4 py-2 border border-green-200 rounded-xl focus:outline-none focus:border-[#1a237e] text-slate-800 placeholder:text-slate-400 bg-white"
+                  placeholder="contact@example.com, support@example.com"
+                  rows={2}
+                />
+                <p className="text-xs text-green-600 mt-2">
+                  These email addresses will receive contact form submissions. Separate multiple emails with commas.
+                </p>
+              </div>
             </div>
           </div>
         </div>
