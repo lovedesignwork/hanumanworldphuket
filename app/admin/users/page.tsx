@@ -19,7 +19,9 @@ import {
   Ban,
   UserCheck,
   AlertTriangle,
-  Save
+  Save,
+  PenTool,
+  ChevronDown
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { adminGet, adminPatch } from '@/lib/auth/api-client';
@@ -28,7 +30,7 @@ interface AdminUser {
   id: string;
   user_id: string;
   email: string;
-  role: 'superadmin' | 'admin' | 'staff';
+  role: 'superadmin' | 'admin' | 'staff' | 'writer';
   full_name: string | null;
   is_active: boolean;
   created_at: string;
@@ -50,7 +52,7 @@ export default function UsersPage() {
   const [formEmail, setFormEmail] = useState('');
   const [formPassword, setFormPassword] = useState('');
   const [formFullName, setFormFullName] = useState('');
-  const [formRole, setFormRole] = useState<'admin' | 'staff'>('admin');
+  const [formRole, setFormRole] = useState<'admin' | 'staff' | 'writer'>('admin');
   const [showPassword, setShowPassword] = useState(false);
 
   // Delete confirmation
@@ -91,7 +93,7 @@ export default function UsersPage() {
   const openEditModal = (user: AdminUser) => {
     setSelectedUser(user);
     setFormFullName(user.full_name || '');
-    setFormRole(user.role === 'superadmin' ? 'admin' : user.role);
+    setFormRole(user.role === 'superadmin' ? 'admin' : user.role as 'admin' | 'staff' | 'writer');
     setModalType('edit');
   };
 
@@ -112,6 +114,8 @@ export default function UsersPage() {
         return <ShieldCheck className="w-4 h-4 text-purple-600" />;
       case 'admin':
         return <Shield className="w-4 h-4 text-blue-600" />;
+      case 'writer':
+        return <PenTool className="w-4 h-4 text-emerald-600" />;
       default:
         return <UserCog className="w-4 h-4 text-slate-600" />;
     }
@@ -123,6 +127,8 @@ export default function UsersPage() {
         return 'bg-purple-100 text-purple-700';
       case 'admin':
         return 'bg-blue-100 text-blue-700';
+      case 'writer':
+        return 'bg-emerald-100 text-emerald-700';
       default:
         return 'bg-slate-100 text-slate-700';
     }
@@ -499,16 +505,20 @@ export default function UsersPage() {
                 <label className="block text-sm font-medium text-slate-700 mb-1">
                   Role *
                 </label>
-                <select
-                  value={formRole}
-                  onChange={(e) => setFormRole(e.target.value as 'admin' | 'staff')}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#1a237e] text-slate-800"
-                >
-                  <option value="admin">Admin</option>
-                  <option value="staff">Staff</option>
-                </select>
-                <p className="text-xs text-slate-400 mt-1">
-                  Admins have full access. Staff have limited access.
+                <div className="relative">
+                  <select
+                    value={formRole}
+                    onChange={(e) => setFormRole(e.target.value as 'admin' | 'staff' | 'writer')}
+                    className="w-full px-4 py-2.5 pr-10 border border-slate-200 rounded-xl focus:outline-none focus:border-[#1a237e] text-slate-800 appearance-none bg-white cursor-pointer"
+                  >
+                    <option value="admin">Admin</option>
+                    <option value="staff">Staff</option>
+                    <option value="writer">Writer</option>
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                </div>
+                <p className="text-xs text-slate-400 mt-1.5">
+                  <strong>Admin:</strong> Full access | <strong>Staff:</strong> Limited access | <strong>Writer:</strong> Blog only
                 </p>
               </div>
 
@@ -604,14 +614,21 @@ export default function UsersPage() {
                 <label className="block text-sm font-medium text-slate-700 mb-1">
                   Role *
                 </label>
-                <select
-                  value={formRole}
-                  onChange={(e) => setFormRole(e.target.value as 'admin' | 'staff')}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#1a237e] text-slate-800"
-                >
-                  <option value="admin">Admin</option>
-                  <option value="staff">Staff</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={formRole}
+                    onChange={(e) => setFormRole(e.target.value as 'admin' | 'staff' | 'writer')}
+                    className="w-full px-4 py-2.5 pr-10 border border-slate-200 rounded-xl focus:outline-none focus:border-[#1a237e] text-slate-800 appearance-none bg-white cursor-pointer"
+                  >
+                    <option value="admin">Admin</option>
+                    <option value="staff">Staff</option>
+                    <option value="writer">Writer</option>
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                </div>
+                <p className="text-xs text-slate-400 mt-1.5">
+                  <strong>Admin:</strong> Full access | <strong>Staff:</strong> Limited access | <strong>Writer:</strong> Blog only
+                </p>
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
